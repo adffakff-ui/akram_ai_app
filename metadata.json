@@ -1,0 +1,6 @@
+{
+  "name": "منارة القرآن",
+  "description": "منظومة متكاملة لمتابعة طلاب وطالبات حلقات القرآن الكريم، الحفظ والمراجعة، الحضور والغياب، إشعارات أولياء الأمور، ولوحة تحكم المطور.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
