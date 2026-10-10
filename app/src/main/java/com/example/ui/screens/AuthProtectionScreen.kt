@@ -398,6 +398,38 @@ fun AuthProtectionScreen(
 
                         Spacer(modifier = Modifier.height(12.dp))
 
+                        // الزر الأخضر: دخول المطور السريع (مؤمن بالرمز السري 2026)
+                        Button(
+                            onClick = {
+                                adminRoleTarget = UserRole.DEVELOPER
+                                showAdminLoginPrompt = true
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = EmeraldPrimary,
+                                contentColor = Color.White
+                            ),
+                            shape = RoundedCornerShape(12.dp),
+                            elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .testTag("quick_dev_login_button")
+                        ) {
+                            Icon(
+                                Icons.Default.Bolt,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp),
+                                tint = GoldPrimary
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "⚡ دخول المطور السريع (صلاحيات كاملة)",
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.ExtraBold
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -519,8 +551,8 @@ fun AuthProtectionScreen(
                             adminPinCode = it
                             pinError = false
                         },
-                        label = { Text("كلمة مرور المشرف العام (مطلوبة: admin123)") },
-                        placeholder = { Text("أدخل admin123") },
+                        label = { Text("رمز المطور أو كلمة مرور الإدارة (2026 أو admin123)") },
+                        placeholder = { Text("أدخل الرمز السري") },
                         singleLine = true,
                         isError = pinError,
                         shape = RoundedCornerShape(10.dp),
@@ -529,7 +561,7 @@ fun AuthProtectionScreen(
                     if (pinError) {
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "كلمة المرور غير صحيحة! كلمة مرور المشرف العام هي: admin123",
+                            text = "الرمز السري غير صحيح! مخصص للمطور والإدارة فقط.",
                             color = MaterialTheme.colorScheme.error,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold
@@ -540,7 +572,8 @@ fun AuthProtectionScreen(
             confirmButton = {
                 Button(
                     onClick = {
-                        if (adminPinCode.trim() == "admin123") {
+                        val entered = adminPinCode.trim()
+                        if (entered == "2026" || entered == "admin123") {
                             viewModel.authenticateAsAdmin(adminRoleTarget)
                             showAdminLoginPrompt = false
                             adminPinCode = ""

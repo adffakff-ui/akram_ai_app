@@ -337,6 +337,16 @@
       </div>
 
       <button type="submit" class="submit-btn" id="submitBtn">تسجيل الدخول</button>
+
+      <!-- زر خاص للمطور (أكرم Al-Sabri) باللون الأخضر للدخول المباشر بضغطة زر واحدة -->
+      <div style="position: relative; margin: 16px 0 10px; text-align: center;">
+        <hr style="border: 0; border-top: 1px solid #e2e8f0;">
+        <span style="position: absolute; top: -9px; right: 50%; transform: translateX(50%); background: #fff; padding: 0 10px; font-size: 11px; color: #10b981; font-weight: bold;">أو الدخول المباشر للمطور</span>
+      </div>
+
+      <button type="button" class="dev-quick-btn" onclick="loginAsDeveloper()">
+        <span>⚡ دخول المطور السريع (صلاحيات كاملة)</span>
+      </button>
       
       <div style="margin-top: 14px; font-size: 11px; color: #64748b; line-height: 1.5;">
         🔒 الحسابات الجديدة تتطلب موافقة واعتماد المشرف العام لتفعيل الدخول.
@@ -384,6 +394,29 @@
   transition: all 0.2s ease;
 }
 .submit-btn:hover { background: #0b3d26; }
+.dev-quick-btn {
+  width: 100%; padding: 12px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  border: 1.5px solid #34d399;
+  border-radius: 8px;
+  font-weight: 800;
+  cursor: pointer;
+  margin-top: 4px;
+  font-size: 14px;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+  transition: all 0.2s ease;
+}
+.dev-quick-btn:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+}
 .pending-card { padding: 15px; text-align: center; }
 .pending-card .icon { font-size: 46px; margin-bottom: 10px; }
 .secondary-btn { margin-top: 15px; background: #dc2626; color: #fff; border: none; padding: 9px 18px; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 13px; }
@@ -813,8 +846,8 @@
         overlay.style.display = 'none'; // فتح اللوحة الرئيسية
         if (headerBar) {
           headerBar.style.display = 'block';
-          document.getElementById('activeUserName').innerText = activeUser.identity;
-          document.getElementById('activeUserRoleBadge').innerText = activeUser.role;
+          document.getElementById('activeUserName').innerText = activeUser.name || activeUser.identity || 'المطور (أكرم Al-Sabri)';
+          document.getElementById('activeUserRoleBadge').innerText = (activeUser.role === 'super_admin' || activeUser.role === 'المشرف العام') ? 'المشرف العام / المطور' : activeUser.role;
         }
 
         if (roleSection) {
@@ -837,8 +870,8 @@
       if (supervisorP) supervisorP.style.display = 'none';
       if (generalAdminP) generalAdminP.style.display = 'none';
 
-      // 1. المشرف العام (admin)
-      if (user.role === 'المشرف العام' || user.identity.toLowerCase().includes('admin')) {
+      // 1. المشرف العام (admin) أو المطور (أكرم / super_admin)
+      if (user.role === 'super_admin' || user.role === 'المشرف العام' || user.role === 'المطور' || user.identity === 'admin' || (user.identity && user.identity.includes('أكرم')) || (user.name && user.name.includes('أكرم'))) {
         if (generalAdminP) {
           generalAdminP.style.display = 'block';
           renderAdminApprovalList();
@@ -943,6 +976,40 @@
 
     window.approveUser = approveUser;
     window.rejectUser = rejectUser;
+
+    function initSystem() {
+      console.log('نظام منارة القرآن الكريم - تم التهيئة بنجاح.');
+    }
+
+    function checkAppAccess() {
+      checkUserStatus();
+    }
+
+    // زر دخول المطور السريع (مؤمن برمز سري خاص بك وحدك)
+    function loginAsDeveloper() {
+      // ضع هنا الرمز السري الخاص بك (يمكنك تغيير الرقم 2026 إلى أي رقم تفضله)
+      const secretPin = prompt("أدخل الرمز السري الخاص بالمطور (أكرم):");
+      
+      if (secretPin === "2026") { 
+        initSystem();
+        const devUser = {
+          id: 'dev_admin_akram',
+          name: 'المطور (أكرم Al-Sabri)',
+          identity: 'admin',
+          role: 'super_admin',
+          status: 'approved',
+          assignedCircle: 'الكل'
+        };
+        localStorage.setItem('quran_active_user', JSON.stringify(devUser));
+        checkAppAccess();
+      } else {
+        alert("الرمز السري غير صحيح! هذا الزر مخصص للمطور فقط.");
+      }
+    }
+    window.loginAsDeveloper = loginAsDeveloper;
+    window.devDirectLogin = loginAsDeveloper;
+    window.initSystem = initSystem;
+    window.checkAppAccess = checkAppAccess;
 
     function logout() {
       if (supabaseClient) {
