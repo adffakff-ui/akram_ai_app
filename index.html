@@ -3,48 +3,418 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>تطبيق Akram AI</title>
+  <title>تحميل وتثبيت تطبيق منارة القرآن الكريم | Android APK</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <meta name="theme-color" content="#064e3b">
+  <meta name="description" content="حزمة تثبيت تطبيق منارة القرآن الكريم بنظام الأندرويد لجميع الهواتف والأجهزة اللوحية، مع دعم نسخة الويب المباشرة.">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/icon-192.png">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { 
-      font-family: system-ui, -apple-system, sans-serif; 
-      background-color: #0f172a; 
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+      background: linear-gradient(135deg, #064e3b 0%, #0f172a 100%); 
       color: #f8fafc; 
       display: flex; 
       align-items: center; 
       justify-content: center; 
       min-height: 100vh; 
-      padding: 1rem; 
+      padding: 1.5rem 1rem; 
       text-align: center; 
     }
     .card { 
       background: #1e293b; 
       padding: 2.5rem 2rem; 
-      border-radius: 16px; 
-      max-width: 450px; 
+      border-radius: 24px; 
+      max-width: 520px; 
       width: 100%; 
       border: 1px solid #334155; 
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3); 
+      box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5); 
+    }
+    .logo-container {
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 1.25rem;
+      background: rgba(16, 185, 129, 0.15);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      font-size: 2.2rem;
     }
     .badge { 
       display: inline-block; 
-      background: #0369a1; 
-      color: #e0f2fe; 
-      padding: 0.3rem 0.8rem; 
+      background: #047857; 
+      color: #d1fae5; 
+      padding: 0.35rem 1rem; 
       border-radius: 9999px; 
       font-size: 0.85rem; 
-      margin-bottom: 1.25rem; 
-      font-weight: 600;
+      margin-bottom: 1rem; 
+      font-weight: 700;
+      letter-spacing: 0.5px;
     }
-    h1 { color: #38bdf8; font-size: 1.6rem; margin-bottom: 1rem; }
-    p { color: #94a3b8; line-height: 1.6; font-size: 1rem; }
+    h1 { color: #f8fafc; font-size: 1.7rem; margin-bottom: 0.5rem; font-weight: 800; }
+    h2 { color: #34d399; font-size: 1.1rem; margin-bottom: 1.25rem; font-weight: 600; }
+    p.desc { color: #94a3b8; line-height: 1.6; font-size: 0.95rem; margin-bottom: 1.75rem; }
+    
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      margin-bottom: 2rem;
+    }
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      padding: 0.95rem 1.5rem;
+      border-radius: 14px;
+      font-weight: 700;
+      font-size: 1.05rem;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      border: none;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #ffffff;
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.45);
+    }
+    .btn-secondary {
+      background: #334155;
+      color: #f1f5f9;
+      border: 1px solid #475569;
+    }
+    .btn-secondary:hover {
+      background: #475569;
+      transform: translateY(-2px);
+    }
+    
+    .steps-box {
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 1.25rem 1.5rem;
+      text-align: right;
+      margin-bottom: 1.5rem;
+    }
+    .steps-title {
+      color: #f59e0b;
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .steps-list {
+      list-style-position: inside;
+      color: #cbd5e1;
+      font-size: 0.88rem;
+      line-height: 1.8;
+    }
+    
+    .footer-note {
+      color: #64748b;
+      font-size: 0.8rem;
+      line-height: 1.5;
+    }
+    .copy-link-btn {
+      background: transparent;
+      color: #38bdf8;
+      border: 1px dashed #38bdf8;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      display: inline-block;
+      transition: all 0.2s;
+    }
+    .copy-link-btn:hover {
+      background: rgba(56, 189, 248, 0.1);
+    }
+    
+    /* Accordion & Changelog Styles */
+    .changelog-section {
+      margin-top: 1.5rem;
+      text-align: right;
+      border-top: 1px solid #334155;
+      padding-top: 1.25rem;
+    }
+    .changelog-header {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #34d399;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.85rem;
+    }
+    .accordion {
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+    .accordion-item {
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 14px;
+      overflow: hidden;
+      transition: all 0.2s ease;
+    }
+    .accordion-item:hover {
+      border-color: #10b981;
+    }
+    .accordion-summary {
+      padding: 0.85rem 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      user-select: none;
+      font-weight: 700;
+      color: #f1f5f9;
+      font-size: 0.9rem;
+      list-style: none;
+    }
+    .accordion-summary::-webkit-details-marker {
+      display: none;
+    }
+    .tag-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .version-tag {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      padding: 0.2rem 0.55rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .version-tag.prev {
+      background: rgba(148, 163, 184, 0.15);
+      color: #94a3b8;
+      border-color: rgba(148, 163, 184, 0.25);
+    }
+    .chevron-icon {
+      font-size: 0.8rem;
+      color: #94a3b8;
+      transition: transform 0.25s ease;
+    }
+    details[open] .chevron-icon {
+      transform: rotate(180deg);
+      color: #34d399;
+    }
+    .accordion-content {
+      padding: 0.2rem 1rem 1rem;
+      color: #cbd5e1;
+      font-size: 0.84rem;
+      line-height: 1.7;
+      border-top: 1px solid #1e293b;
+    }
+    .accordion-content ul {
+      list-style-type: none;
+      padding-right: 0.2rem;
+      margin-top: 0.4rem;
+    }
+    .accordion-content li {
+      position: relative;
+      padding-right: 1.25rem;
+      margin-bottom: 0.45rem;
+    }
+    .accordion-content li::before {
+      content: "✦";
+      position: absolute;
+      right: 0;
+      color: #10b981;
+      font-size: 0.75rem;
+    }
+    .highlight-badge {
+      display: inline-block;
+      background: #064e3b;
+      color: #6ee7b7;
+      border: 1px solid #047857;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+      margin-left: 0.35rem;
+    }
   </style>
 </head>
 <body>
   <div class="card">
-    <span class="badge">Akram AI</span>
-    <h1>تم تشغيل التطبيق بنجاح!</h1>
-    <p>https://ais-pre-hyedq3aw5ugaoci7a65pzg-567265308769.europe-west3.run.app</p>
+    <div class="logo-container">📖</div>
+    <span class="badge">نظام أندرويد الرسمي • Android Package</span>
+    <h1>مَنَارَةُ القُرْآنِ الكَرِيمِ</h1>
+    <h2>حزمة التثبيت الرسمية للهاتف المحمول (APK)</h2>
+    <p class="desc">
+      يمكنك الآن تحميل وتثبيت تطبيق منارة القرآن الكريم مباشرة على جهازك بنظام Android مع دعم التنبيهات والعمل دون إنترنت.
+    </p>
+
+    <div class="btn-group">
+      <a href="/app-debug.apk" class="btn btn-primary" download="Manarat_AlQuran.apk">
+        <span>تحميل حزمة التثبيت (APK) مباشرة 📥</span>
+      </a>
+      <a href="https://ais-pre-hyedq3aw5ugaoci7a65pzg-567265308769.europe-west3.run.app" class="btn btn-secondary">
+        <span>فتح نسخة الويب والتثبيت على الشاشة 🌐</span>
+      </a>
+    </div>
+
+    <div class="steps-box">
+      <div class="steps-title">
+        <span>📱 خطوات تثبيت ملف APK على أجهزة الأندرويد:</span>
+      </div>
+      <ol class="steps-list">
+        <li>اضغط على زر <strong>تحميل حزمة التثبيت (APK)</strong> أعلاه.</li>
+        <li>بعد اكتمال التحميل، اضغط على الملف المفتوح <strong>Manarat_AlQuran.apk</strong>.</li>
+        <li>إذا ظهر تحذير التثبيت من مصادر غير معروفة، اضغط <strong>الإعدادات</strong> ثم فعّل <strong>السماح من هذا المصدر</strong>.</li>
+        <li>اضغط <strong>تثبيت (Install)</strong> ثم <strong>فتح (Open)</strong> وابدأ إدارة الحلقات كمطور أو مشرف!</li>
+      </ol>
+    </div>
+
+    <div>
+      <button class="copy-link-btn" onclick="copyApkLink()">📋 نسخ رابط التحميل المباشر للمشاركة</button>
+      <div id="copy-msg" style="color: #34d399; font-size: 0.8rem; margin-top: 0.4rem; display: none;">تم نسخ رابط التحميل إلى الحافظة بنجاح!</div>
+    </div>
+
+    <!-- Accordion Section: Changelog -->
+    <div class="changelog-section">
+      <div class="changelog-header">
+        <span>📜 سجل التحديثات والتغييرات (Changelog)</span>
+      </div>
+
+      <div class="accordion">
+        <!-- Version 1.0.0 (Latest) -->
+        <details class="accordion-item" open>
+          <summary class="accordion-summary">
+            <div class="tag-group">
+              <span class="version-tag">الإصدار 1.0.0</span>
+              <span>الإصدار الرسمي النهائي 🌟</span>
+            </div>
+            <span class="chevron-icon">▼</span>
+          </summary>
+          <div class="accordion-content">
+            <ul>
+              <li>
+                <span class="highlight-badge">ميزة جديدة</span>
+                <strong>التحقق من هوية المشتركين والموافقة عليها:</strong>
+                نظام إثبات الهوية الوطنية أو الإقامة للمشتركين مع لوحة تحكم حصرية للمشرفين والمطورين لاعتماد أو رفض الاشتراكات وتوثيق الحسابات.
+              </li>
+              <li>
+                <span class="highlight-badge">تثبيت فوري</span>
+                <strong>حزمة التثبيت الرسمية (APK):</strong>
+                إمكانية تحميل تطبيق أندرويد وتثبيته مباشرة مع دعم التحديثات والعمل دون إنترنت.
+              </li>
+              <li>
+                <span class="highlight-badge">تطبيق ويب</span>
+                <strong>دعم تطبيق الويب التدريجي (PWA):</strong>
+                إضافة ملف التعريف <code>manifest.json</code> وعامل الخدمة <code>sw.js</code> لتثبيت التطبيق على الشاشة الرئيسية لأنظمة iOS وAndroid وحواسيب Windows/Mac.
+              </li>
+              <li>
+                <span class="highlight-badge">تحكم متقدم</span>
+                <strong>لوحة تحكم المطور والمشرف الفائقة:</strong>
+                أدوات شاملة لإدارة الصلاحيات، الأجهزة المسجلة، جداول الاختبارات، والتقارير الإحصائية.
+              </li>
+            </ul>
+          </div>
+        </details>
+
+        <!-- Version 0.9.0 -->
+        <details class="accordion-item">
+          <summary class="accordion-summary">
+            <div class="tag-group">
+              <span class="version-tag prev">الإصدار 0.9.0</span>
+              <span>النسخة التجريبية المتقدمة</span>
+            </div>
+            <span class="chevron-icon">▼</span>
+          </summary>
+          <div class="accordion-content">
+            <ul>
+              <li>
+                <strong>إدارة الحلقات القرآنية:</strong>
+                إنشاء وإدارة حلقات البنين والبنات، وتوزيع الطلاب وفق المستويات مع تعيين المعلمين والمشرفين.
+              </li>
+              <li>
+                <strong>متابعة الحفظ والتسميع:</strong>
+                سجل يومي دقيق لرصد الحفظ الجديد، المراجعة الصغرى والكبرى، والتقييم، ونسب الإنجاز.
+              </li>
+              <li>
+                <strong>بوابة أولياء الأمور:</strong>
+                واجهة مخصصة تتيح لأولياء الأمور متابعة الحضور والغياب وسير حفظ أبنائهم لحظياً.
+              </li>
+            </ul>
+          </div>
+        </details>
+
+        <!-- Version 0.8.0 -->
+        <details class="accordion-item">
+          <summary class="accordion-summary">
+            <div class="tag-group">
+              <span class="version-tag prev">الإصدار 0.8.0</span>
+              <span>النسخة التأسيسية الأولى</span>
+            </div>
+            <span class="chevron-icon">▼</span>
+          </summary>
+          <div class="accordion-content">
+            <ul>
+              <li>
+                <strong>قاعدة بيانات محلية سريعة:</strong>
+                بناء هيكل بيانات Room المحلي لدعم العمل الكامل دون الحاجة إلى اتصال بالإنترنت.
+              </li>
+              <li>
+                <strong>المصحف الشريف والأذكار:</strong>
+                تصفح سور وآيات القرآن الكريم، مع أذكار الصباح والمساء وأوقات الصلاة والقبلة.
+              </li>
+              <li>
+                <strong>تصميم Material 3:</strong>
+                واجهة عصرية مستوحاة من الهوية الإسلامية الخضراء وتجربة مستخدم متوافقة مع جميع الأجهزة.
+              </li>
+            </ul>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <p class="footer-note" style="margin-top: 1.25rem;">
+      حجم الحزمة: 23 MB • الإصدار: 1.0.0 • متوافق مع Android 8.0 فما فوق
+    </p>
   </div>
+
+  <script>
+    function copyApkLink() {
+      const url = window.location.origin + "/app-debug.apk";
+      navigator.clipboard.writeText(url).then(() => {
+        const msg = document.getElementById("copy-msg");
+        msg.style.display = "block";
+        setTimeout(() => { msg.style.display = "none"; }, 3000);
+      });
+    }
+
+    // تسجيل Service Worker للعمل دون إنترنت
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then((registration) => {
+            console.log('ServiceWorker registered with scope:', registration.scope);
+          })
+          .catch((error) => {
+            console.log('ServiceWorker registration failed:', error);
+          });
+      });
+    }
+  </script>
 </body>
-  </html
+</html>
