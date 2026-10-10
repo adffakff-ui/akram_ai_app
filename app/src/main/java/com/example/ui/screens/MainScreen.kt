@@ -34,6 +34,7 @@ enum class ScreenTab(val title: String, val icon: androidx.compose.ui.graphics.v
 
 @Composable
 fun MainScreen(viewModel: QuranViewModel) {
+    val isAuthGatePassed by viewModel.isAuthGatePassed.collectAsState()
     val currentRole by viewModel.currentRole.collectAsState()
     val syncStatus by viewModel.syncStatus.collectAsState()
     val isNightMode by viewModel.isNightMode.collectAsState()
@@ -49,6 +50,18 @@ fun MainScreen(viewModel: QuranViewModel) {
         viewModel.toastMessage.collectLatest { msg ->
             snackbarHostState.showSnackbar(msg)
         }
+    }
+
+    // Gate Screen: If not authenticated or passed gate, show AuthProtectionScreen
+    if (!isAuthGatePassed) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            AuthProtectionScreen(viewModel = viewModel)
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier.align(androidx.compose.ui.Alignment.BottomCenter)
+            )
+        }
+        return
     }
 
     LaunchedEffect(currentRole) {
@@ -88,6 +101,9 @@ fun MainScreen(viewModel: QuranViewModel) {
                 },
                 onDownloadApkClick = {
                     showInstallApkSheet = true
+                },
+                onLockClick = {
+                    viewModel.lockToAuthGate()
                 }
             )
         },

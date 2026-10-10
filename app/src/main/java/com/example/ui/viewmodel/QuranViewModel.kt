@@ -27,6 +27,13 @@ class QuranViewModel(application: Application) : AndroidViewModel(application) {
     private val _currentRole = MutableStateFlow(UserRole.TEACHER)
     val currentRole: StateFlow<UserRole> = _currentRole.asStateFlow()
 
+    // Authentication Gate & Protection Screen State
+    private val _isAuthGatePassed = MutableStateFlow(false)
+    val isAuthGatePassed: StateFlow<Boolean> = _isAuthGatePassed.asStateFlow()
+
+    private val _authenticatedSubscriber = MutableStateFlow<SubscriberRegistration?>(null)
+    val authenticatedSubscriber: StateFlow<SubscriberRegistration?> = _authenticatedSubscriber.asStateFlow()
+
     // Fullscreen Mode
     private val _isFullscreen = MutableStateFlow(false)
     val isFullscreen: StateFlow<Boolean> = _isFullscreen.asStateFlow()
@@ -280,6 +287,60 @@ class QuranViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             repository.deleteSubscriber(subscriber)
             _toastMessage.emit("تم حذف سجل المشترك")
+        }
+    }
+
+    // Authentication Gate & Protection Screen Actions
+    fun authenticateSubscriber(subscriber: SubscriberRegistration): Boolean {
+        _authenticatedSubscriber.value = subscriber
+        return when (subscriber.approvalStatus) {
+            SubscriberApprovalStatus.APPROVED -> {
+                _currentRole.value = subscriber.requestedRole
+                _isAuthGatePassed.value = true
+                viewModelScope.launch {
+                    _toastMessage.emit("مرحباً بك يا ${subscriber.fullName}، تم التحقق من هويتك بنجاح ✅")
+                }
+                true
+            }
+            SubscriberApprovalStatus.PENDING -> {
+                _isAuthGatePassed.value = false
+                viewModelScope.launch {
+                    _toastMessage.emit("حسابك معلق (Pending) ⏳ قيد تدقيق الهوية والموافقة من قِبل المشرف أو المطور")
+                }
+                false
+            }
+            SubscriberApprovalStatus.REJECTED -> {
+                _isAuthGatePassed.value = false
+                viewModelScope.launch {
+                    _toastMessage.emit("طلب الاشتراك مرفوض ❌: ${subscriber.rejectionReason.ifBlank { "لم يتم استيفاء شروط الهوية" }}")
+                }
+                false
+            }
+        }
+    }
+
+    fun authenticateAsAdmin(role: UserRole) {
+        _authenticatedSubscriber.value = null
+        _currentRole.value = role
+        _isAuthGatePassed.value = true
+        viewModelScope.launch {
+            _toastMessage.emit("تم تسجيل الدخول بصلاحية: ${role.arabicTitle} 🛡️")
+        }
+    }
+
+    fun passAuthGateAsGuest() {
+        _authenticatedSubscriber.value = null
+        _isAuthGatePassed.value = true
+        viewModelScope.launch {
+            _toastMessage.emit("تم الدخول في وضع الاطلاع العام (الزائر) 👁️")
+        }
+    }
+
+    fun lockToAuthGate() {
+        _isAuthGatePassed.value = false
+        _authenticatedSubscriber.value = null
+        viewModelScope.launch {
+            _toastMessage.emit("تم قفل الشاشة والعودة لبوابة المصادقة والحماية 🔒")
         }
     }
 

@@ -9,6 +9,8 @@
   <meta name="description" content="حزمة تثبيت تطبيق منارة القرآن الكريم بنظام الأندرويد لجميع الهواتف والأجهزة اللوحية، مع دعم نسخة الويب المباشرة.">
   <link rel="manifest" href="/manifest.json">
   <link rel="apple-touch-icon" href="/icon-192.png">
+  <!-- Supabase Auth SDK (Free Cloud Backend) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { 
@@ -255,6 +257,98 @@
   </style>
 </head>
 <body>
+<!-- شاشة تسجيل الدخول وإنشاء حساب -->
+<div id="authOverlay" class="auth-overlay">
+  <div class="auth-box">
+    <h2 id="authTitle">تسجيل الدخول / طلب انضمام</h2>
+    <p class="auth-desc">منارة القرآن الكريم - المنظومة الشاملة</p>
+    
+    <form id="authForm" onsubmit="handleAuth(event)">
+      <!-- خيار تبديل بين الدخول وإنشاء حساب -->
+      <div class="auth-tabs">
+        <button type="button" class="tab-btn active" onclick="switchAuthTab('login')">تسجيل الدخول</button>
+        <button type="button" class="tab-btn" onclick="switchAuthTab('register')">إنشاء حساب جديد</button>
+      </div>
+
+      <div class="input-group">
+        <label>الاسم / رقم الهاتف / البريد الإلكتروني</label>
+        <input type="text" id="userInput" placeholder="أدخل اسمك أو رقمك أو بريدك" required>
+      </div>
+
+      <div class="input-group">
+        <label>كلمة المرور</label>
+        <input type="password" id="passwordInput" placeholder="أدخل كلمة المرور" required>
+      </div>
+
+      <!-- خانة الدور تظهر فقط عند إنشاء حساب جديد -->
+      <div class="input-group" id="roleGroup" style="display: none;">
+        <label>الصفة / الدور</label>
+        <select id="roleInput">
+          <option value="معلم">معلم / محفظ</option>
+          <option value="طالب">طالب / ولي أمر</option>
+        </select>
+      </div>
+
+      <button type="submit" class="submit-btn" id="submitBtn">تسجيل الدخول</button>
+    </form>
+
+    <!-- رسالة انتظار موافقة المشرف -->
+    <div id="pendingMessage" class="pending-card" style="display: none;">
+      <div class="icon">⏳</div>
+      <h3>طلبك قيد المراجعة</h3>
+      <p>تم إرسال طلب الحساب بنجاح. يرجى الانتظار لحين اعتماد حسابك من قبل المطور أو المشرف لتتمكن من استخدام اللوحة.</p>
+      <button onclick="logout()" class="secondary-btn">تسجيل الخروج</button>
+    </div>
+
+    <!-- خيار مخفي للمشرف لإدارة الحالات وقبولها فوراً -->
+    <div style="margin-top: 15px; border-top: 1px dashed #ddd; padding-top: 10px;">
+      <a href="javascript:void(0)" onclick="toggleAdminPanel()" style="color: #0F5132; font-size: 11px; text-decoration: none; font-weight: bold;">
+        ⚙️ لوحة تحكم المشرف المصغرة (خيار مخفي للقبول والرفض)
+      </a>
+    </div>
+
+    <!-- نافذة لوحة تحكم المشرف المصغرة -->
+    <div id="adminMiniPanel" style="display: none; margin-top: 15px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; text-align: right; max-height: 250px; overflow-y: auto;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <strong style="color: #0F5132; font-size: 13px;">🛡️ إدارة طلبات المشتركين</strong>
+        <span onclick="toggleAdminPanel()" style="cursor: pointer; font-size: 14px; font-weight: bold; color: #64748b;">✕</span>
+      </div>
+      <p style="font-size: 11px; color: #64748b; margin-bottom: 8px;">يمكنك القبول أو الرفض بنقرة واحدة، أو عبر Console (F12) باستخدام الأمر <code>approveUser('الاسم')</code>:</p>
+      <div id="adminUserList"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+.auth-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(15, 81, 50, 0.95);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9999; font-family: sans-serif; direction: rtl;
+}
+.auth-box {
+  background: #fff; width: 90%; max-width: 400px;
+  padding: 25px; border-radius: 12px; text-align: center;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+.auth-tabs { display: flex; margin-bottom: 15px; border-bottom: 2px solid #eee; }
+.tab-btn { flex: 1; padding: 10px; border: none; background: none; font-weight: bold; cursor: pointer; color: #666; }
+.tab-btn.active { color: #0F5132; border-bottom: 3px solid #0F5132; }
+.input-group { text-align: right; margin-bottom: 12px; }
+.input-group label { display: block; font-size: 13px; margin-bottom: 4px; color: #333; }
+.input-group input, .input-group select {
+  width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box;
+}
+.submit-btn {
+  width: 100%; padding: 12px; background: #0F5132; color: #fff;
+  border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px;
+}
+.pending-card { padding: 15px; text-align: center; }
+.pending-card .icon { font-size: 40px; margin-bottom: 10px; }
+.secondary-btn { margin-top: 15px; background: #dc3545; color: #fff; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; }
+</style>
+
   <div class="card">
     <div class="logo-container">📖</div>
     <span class="badge">نظام أندرويد الرسمي • Android Package</span>
@@ -394,6 +488,275 @@
   </div>
 
   <script>
+    // ==========================================
+    // ⚡ ربط Supabase Auth المجاني (مع دعم التخزين المحلي التلقائي)
+    // ==========================================
+    const DEFAULT_SUPABASE_URL = localStorage.getItem('supabase_url') || 'https://manarat-quran.supabase.co';
+    const DEFAULT_SUPABASE_KEY = localStorage.getItem('supabase_anon_key') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy_anon_key';
+
+    let supabaseClient = null;
+    try {
+      if (window.supabase && typeof window.supabase.createClient === 'function') {
+        supabaseClient = window.supabase.createClient(DEFAULT_SUPABASE_URL, DEFAULT_SUPABASE_KEY);
+      }
+    } catch (err) {
+      console.warn('ملاحظة تهيئة Supabase:', err.message);
+    }
+
+    let mode = 'login'; // 'login' أو 'register'
+
+    function switchAuthTab(selectedMode) {
+      mode = selectedMode;
+      const tabs = document.querySelectorAll('.tab-btn');
+      tabs[0].classList.toggle('active', mode === 'login');
+      tabs[1].classList.toggle('active', mode === 'register');
+      
+      document.getElementById('roleGroup').style.display = mode === 'register' ? 'block' : 'none';
+      document.getElementById('submitBtn').innerText = mode === 'login' ? 'تسجيل الدخول' : 'إرسال طلب الانضمام';
+    }
+
+    // تحويل الاسم أو رقم الهاتف إلى بريد إلكتروني صالح لـ Supabase Auth إذا لم يكن بريداً
+    function formatAuthEmail(identity) {
+      if (identity.includes('@')) return identity;
+      const clean = identity.replace(/\s+/g, '').replace(/[^a-zA-Z0-9]/g, '');
+      return (clean || 'user' + Date.now()) + '@manarat-quran.org';
+    }
+
+    // محاكاة قاعدة البيانات المحلية للطلبات والمستخدمين + ربط Supabase Auth
+    async function handleAuth(e) {
+      e.preventDefault();
+      const identity = document.getElementById('userInput').value.trim();
+      const password = document.getElementById('passwordInput').value;
+      const role = document.getElementById('roleInput').value;
+
+      let users = JSON.parse(localStorage.getItem('app_users') || '[]');
+
+      if (mode === 'register') {
+        // التحقق من وجود الحساب سابقاً محلياً
+        const exists = users.find(u => u.identity === identity);
+        if (exists) {
+          alert('هذا الحساب أو الرقم موجود بالفعل!');
+          return;
+        }
+
+        // إضافة مستخدم جديد بحالة معلق (pending)
+        const newUser = {
+          id: Date.now(),
+          identity: identity,
+          password: password,
+          role: role,
+          status: 'pending', // معلق حتى يوافق عليه المشرف
+          createdAt: new Date().toISOString()
+        };
+
+        // محاولة التسجيل عبر Supabase Auth إن كان متاحاً
+        if (supabaseClient && DEFAULT_SUPABASE_KEY !== 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy_anon_key') {
+          try {
+            const email = formatAuthEmail(identity);
+            const { data, error } = await supabaseClient.auth.signUp({
+              email: email,
+              password: password.length >= 6 ? password : password + '123456',
+              options: {
+                data: {
+                  identity: identity,
+                  role: role,
+                  status: 'pending'
+                }
+              }
+            });
+            if (error) console.warn('Supabase SignUp notice:', error.message);
+            else console.log('✅ Supabase Auth User Registered:', data);
+          } catch (supaErr) {
+            console.warn('Supabase offline/fallback:', supaErr);
+          }
+        }
+
+        users.push(newUser);
+        localStorage.setItem('app_users', JSON.stringify(users));
+        localStorage.setItem('currentUser', JSON.stringify(newUser));
+        checkUserStatus();
+
+      } else {
+        // عملية تسجيل الدخول
+        let user = users.find(u => u.identity === identity && u.password === password);
+
+        // محاولة تسجيل الدخول عبر Supabase Auth إن كان متاحاً
+        if (supabaseClient && DEFAULT_SUPABASE_KEY !== 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy_anon_key') {
+          try {
+            const email = formatAuthEmail(identity);
+            const { data, error } = await supabaseClient.auth.signInWithPassword({
+              email: email,
+              password: password.length >= 6 ? password : password + '123456'
+            });
+            if (!error && data?.user) {
+              const supaMeta = data.user.user_metadata || {};
+              user = user || {
+                id: data.user.id,
+                identity: supaMeta.identity || identity,
+                role: supaMeta.role || 'طالب',
+                status: supaMeta.status || 'pending'
+              };
+            }
+          } catch (supaErr) {
+            console.warn('Supabase SignIn fallback:', supaErr);
+          }
+        }
+
+        // حساب المشرف الافتراضي السريع للتجربة
+        if (identity.toLowerCase() === 'admin' || identity === 'المشرف') {
+          user = {
+            id: 999,
+            identity: identity,
+            role: 'مشرف/مطور',
+            status: 'approved'
+          };
+        }
+
+        if (!user) {
+          alert('اسم المستخدم أو كلمة المرور غير صحيحة!');
+          return;
+        }
+
+        localStorage.setItem('currentUser', JSON.stringify(user));
+        checkUserStatus();
+      }
+    }
+
+    // التحقق من حالة الحساب عند فتح التطبيق
+    function checkUserStatus() {
+      const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+      const overlay = document.getElementById('authOverlay');
+      const form = document.getElementById('authForm');
+      const pendingMsg = document.getElementById('pendingMessage');
+
+      if (!currentUser) {
+        overlay.style.display = 'flex';
+        form.style.display = 'block';
+        pendingMsg.style.display = 'none';
+        return;
+      }
+
+      // إذا كان الحساب معلقاً
+      if (currentUser.status === 'pending') {
+        overlay.style.display = 'flex';
+        form.style.display = 'none';
+        pendingMsg.style.display = 'block';
+      } 
+      // إذا تم قبول الحساب من المشرف
+      else if (currentUser.status === 'approved') {
+        overlay.style.display = 'none'; // فتح اللوحة الرئيسية
+      }
+    }
+
+    function logout() {
+      if (supabaseClient) {
+        try { supabaseClient.auth.signOut(); } catch (e) {}
+      }
+      localStorage.removeItem('currentUser');
+      location.reload();
+    }
+
+    // ==========================================
+    // 🛠️ أوامر Console ولوحة تحكم المشرف لقبول/رفض الطلبات
+    // ==========================================
+    console.log("%c📖 منارة القرآن الكريم - لوحة تحكم المشرف عبر Console", "color: #10b981; font-size: 14px; font-weight: bold;");
+    console.log("1. لعرض الحسابات المعلقة اكتب:\n   console.log(JSON.parse(localStorage.getItem('app_users')));");
+    console.log("2. لقبول حساب معلق اكتب:\n   approveUser('اسم أو رقم المستخدم');");
+    console.log("3. لرفض حساب اكتب:\n   rejectUser('اسم أو رقم المستخدم');");
+
+    // كود سريع لقبول مستخدم عبر طلبه
+    function approveUser(identity) {
+      let users = JSON.parse(localStorage.getItem('app_users') || '[]');
+      users = users.map(u => u.identity === identity ? {...u, status: 'approved'} : u);
+      localStorage.setItem('app_users', JSON.stringify(users));
+
+      // تحديث المستخدم الحالي إن كان هو نفسه
+      const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+      if (currentUser && currentUser.identity === identity) {
+        currentUser.status = 'approved';
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+      }
+
+      alert('تم قبول الحساب (' + identity + ') بنجاح!');
+      if (typeof renderAdminPanel === 'function') renderAdminPanel();
+      checkUserStatus();
+    }
+
+    // كود سريع لرفض مستخدم
+    function rejectUser(identity) {
+      let users = JSON.parse(localStorage.getItem('app_users') || '[]');
+      users = users.map(u => u.identity === identity ? {...u, status: 'rejected'} : u);
+      localStorage.setItem('app_users', JSON.stringify(users));
+
+      const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+      if (currentUser && currentUser.identity === identity) {
+        currentUser.status = 'rejected';
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+      }
+
+      alert('تم رفض الحساب (' + identity + ').');
+      if (typeof renderAdminPanel === 'function') renderAdminPanel();
+      checkUserStatus();
+    }
+
+    // إتاحتها للمتصفح في النطاق العام window
+    window.approveUser = approveUser;
+    window.rejectUser = rejectUser;
+
+    // الخيار المخفي لإدارة الحالات في واجهة المستخدم
+    function toggleAdminPanel() {
+      const panel = document.getElementById('adminMiniPanel');
+      if (panel.style.display === 'none') {
+        panel.style.display = 'block';
+        renderAdminPanel();
+      } else {
+        panel.style.display = 'none';
+      }
+    }
+
+    function renderAdminPanel() {
+      const listEl = document.getElementById('adminUserList');
+      if (!listEl) return;
+      let users = JSON.parse(localStorage.getItem('app_users') || '[]');
+
+      // مستخدمون تجريبيون أوليون للمعاينة الفورية
+      if (users.length === 0) {
+        users = [
+          { identity: 'عبدالرحمن بن خالد', role: 'طالب', status: 'pending' },
+          { identity: 'الشيخ إبراهيم الشافعي', role: 'معلم', status: 'approved' },
+          { identity: 'يوسف أحمد النجار', role: 'طالب', status: 'pending' }
+        ];
+        localStorage.setItem('app_users', JSON.stringify(users));
+      }
+
+      let html = '<div style="display: flex; flex-direction: column; gap: 8px;">';
+      users.forEach(u => {
+        const isPending = u.status === 'pending';
+        const isApproved = u.status === 'approved';
+        const badgeColor = isApproved ? '#059669' : (isPending ? '#d97706' : '#dc2626');
+        const badgeText = isApproved ? 'مقبول ✅' : (isPending ? 'معلق ⏳' : 'مرفوض ❌');
+
+        html += `
+          <div style="background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px; font-size: 11px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <strong>${u.identity}</strong>
+              <span style="background: ${badgeColor}; color: #fff; padding: 1px 6px; border-radius: 4px; font-size: 10px;">${badgeText}</span>
+            </div>
+            <div style="color: #64748b; font-size: 10px; margin-bottom: 6px;">الدور: ${u.role || 'طالب'}</div>
+            <div style="display: flex; gap: 5px;">
+              ${!isApproved ? `<button onclick="approveUser('${u.identity}')" style="background: #0F5132; color: #fff; border: none; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold;">قبول واعتماد ✓</button>` : ''}
+              ${isApproved ? `<button onclick="rejectUser('${u.identity}')" style="background: #dc3545; color: #fff; border: none; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-size: 10px;">تعليق / رفض ✕</button>` : `<button onclick="rejectUser('${u.identity}')" style="background: #ef4444; color: #fff; border: none; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-size: 10px;">رفض ✕</button>`}
+            </div>
+          </div>
+        `;
+      });
+      html += '</div>';
+      listEl.innerHTML = html;
+    }
+
+    // تشغيل الفحص عند فتح الصفحة
+    window.addEventListener('DOMContentLoaded', checkUserStatus);
+
     function copyApkLink() {
       const url = window.location.origin + "/app-debug.apk";
       navigator.clipboard.writeText(url).then(() => {

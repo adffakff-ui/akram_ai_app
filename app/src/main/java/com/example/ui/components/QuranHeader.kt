@@ -36,7 +36,8 @@ fun QuranHeader(
     onNightModeToggle: () -> Unit,
     onLanguageToggle: () -> Unit,
     onFullscreenToggle: () -> Unit = {},
-    onDownloadApkClick: () -> Unit
+    onDownloadApkClick: () -> Unit,
+    onLockClick: () -> Unit = {}
 ) {
     var roleMenuExpanded by remember { mutableStateOf(false) }
 
@@ -122,6 +123,18 @@ fun QuranHeader(
                             imageVector = if (isNightMode) Icons.Default.LightMode else Icons.Default.DarkMode,
                             contentDescription = "الوضع الليلي",
                             tint = Color.White
+                        )
+                    }
+
+                    // Lock / Auth Gate Screen Toggle Button
+                    IconButton(
+                        onClick = onLockClick,
+                        modifier = Modifier.testTag("auth_gate_lock_button")
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Lock,
+                            contentDescription = "شاشة الحماية والمصادقة (قفل)",
+                            tint = GoldPrimary
                         )
                     }
 
