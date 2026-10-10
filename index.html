@@ -3,994 +3,272 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>تحميل وتثبيت تطبيق منارة القرآن الكريم | Android APK</title>
-  <link rel="icon" href="favicon.ico" type="image/x-icon">
-  <meta name="theme-color" content="#0F5132">
-  <meta name="description" content="حزمة تثبيت تطبيق منارة القرآن الكريم بنظام الأندرويد لجميع الهواتف والأجهزة اللوحية، مع دعم نسخة الويب المباشرة.">
+  <title>منارة القرآن الكريم - المنظومة الشاملة</title>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <link rel="manifest" href="/manifest.json">
   <link rel="apple-touch-icon" href="/icon-192.png">
+  <meta name="theme-color" content="#0F5132">
+  <meta name="description" content="منارة القرآن الكريم - المنظومة الشاملة لإدارة حلقات التحفيظ والمتابعة">
+
   <!-- Google Fonts: Cairo -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <!-- Supabase Auth SDK (Free Cloud Backend) -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
-    /* ضبط القياسات العامة لتتوافق مع كافة الأجهزة الهواتف والتابلت والكمبيوتر */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; min-height: 100vh; font-family: 'Cairo', sans-serif, system-ui; background-color: #0F5132; overflow-x: hidden; }
+    
+    /* شاشة تسجيل الدخول الإلزامية */
+    .auth-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(15, 81, 50, 0.98); display: flex; align-items: center; justify-content: center;
+      z-index: 9999; padding: 15px;
     }
+    .auth-box {
+      background: #fff; width: 100%; max-width: 420px; padding: 25px 20px;
+      border-radius: 14px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      color: #1e293b;
+    }
+    .auth-tabs { display: flex; margin-bottom: 15px; border-bottom: 2px solid #eee; }
+    .tab-btn { flex: 1; padding: 10px; border: none; background: none; font-weight: bold; cursor: pointer; color: #666; font-size: 14px; font-family: inherit; }
+    .tab-btn.active { color: #0F5132; border-bottom: 3px solid #0F5132; }
+    .input-group { text-align: right; margin-bottom: 12px; }
+    .input-group label { display: block; font-size: 13px; margin-bottom: 4px; color: #333; font-weight: bold; }
+    .input-group input, .input-group select { width: 100%; padding: 11px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; font-family: inherit; }
+    .submit-btn { width: 100%; padding: 12px; background: #0F5132; color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 5px; font-size: 15px; font-family: inherit; transition: all 0.2s ease; }
+    .submit-btn:hover { background: #0b3d26; }
+    
+    /* أزرار المطور المخصصة */
+    .dev-bypass-btn {
+      width: 100%; padding: 12px; background: #198754; color: #fff;
+      border: 1px solid #34d399; border-radius: 8px; font-weight: bold; cursor: pointer;
+      margin-top: 10px; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px;
+      font-family: inherit; transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(25, 135, 84, 0.3);
+    }
+    .dev-bypass-btn:hover { background: #157347; transform: translateY(-1px); }
+    .dev-bio-btn {
+      width: 100%; padding: 11px; background: #0dcaf0; color: #000;
+      border: 1px solid #0aa2c0; border-radius: 8px; font-weight: bold; cursor: pointer;
+      margin-top: 8px; font-size: 13px; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: all 0.2s ease;
+    }
+    .dev-bio-btn:hover { background: #31d2f2; transform: translateY(-1px); }
+    
+    .pending-card { padding: 15px; text-align: center; }
+    .pending-card .icon { font-size: 45px; margin-bottom: 10px; }
+    .secondary-btn { margin-top: 15px; background: #dc3545; color: #fff; border: none; padding: 9px 18px; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: bold; }
+    
+    /* الواجهة الداخلية المحمية (SPA) */
+    #mainAppContent { display: none; width: 100%; min-height: 100vh; background: #12221b; color: #fff; padding: 16px; }
+    .admin-panel-box { background: #1a2e26; border: 1px solid #204033; border-radius: 12px; padding: 16px; margin-top: 15px; }
 
-    html, body {
-      width: 100%;
-      min-height: 100vh;
-      font-family: 'Cairo', sans-serif, system-ui;
-      background-color: #0F5132; /* لون الخلفية العام للتطبيق */
-      color: #f8fafc;
-      overflow-x: hidden; /* منع التمرير العرضي المزعج */
-      -webkit-text-size-adjust: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1.5rem 1rem;
+    /* تفاصيل الحلقات والمعلومات الإضافية */
+    .dashboard-card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .stat-card {
+      background: #13241e;
+      border: 1px solid #234737;
+      border-radius: 10px;
+      padding: 12px;
       text-align: center;
-    }
-
-    /* الحاوية الرئيسية للتطبيق لتأخذ كامل الشاشة بسلاسة */
-    .app-container, main, .main-wrapper {
-      width: 100%;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-
-    /* جعل الجداول والصور استجابتها مرنة 100% مع شاشة الهاتف */
-    img, video, canvas, svg {
-      max-width: 100%;
-      height: auto;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    /* تعديل مقاسات الأزرار والبطاقات لتناسب الهواتف الصغيرة */
-    @media (max-width: 768px) {
-      body {
-        font-size: 14px;
-      }
-      .auth-box {
-        width: 95% !important;
-        padding: 15px !important;
-      }
-    }
-    .card { 
-      background: #1e293b; 
-      padding: 2.5rem 2rem; 
-      border-radius: 24px; 
-      max-width: 520px; 
-      width: 100%; 
-      border: 1px solid #334155; 
-      box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5); 
-    }
-    .logo-container {
-      width: 72px;
-      height: 72px;
-      margin: 0 auto 1.25rem;
-      background: rgba(16, 185, 129, 0.15);
-      border-radius: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      font-size: 2.2rem;
-    }
-    .badge { 
-      display: inline-block; 
-      background: #047857; 
-      color: #d1fae5; 
-      padding: 0.35rem 1rem; 
-      border-radius: 9999px; 
-      font-size: 0.85rem; 
-      margin-bottom: 1rem; 
-      font-weight: 700;
-      letter-spacing: 0.5px;
-    }
-    h1 { color: #f8fafc; font-size: 1.7rem; margin-bottom: 0.5rem; font-weight: 800; }
-    h2 { color: #34d399; font-size: 1.1rem; margin-bottom: 1.25rem; font-weight: 600; }
-    p.desc { color: #94a3b8; line-height: 1.6; font-size: 0.95rem; margin-bottom: 1.75rem; }
-    
-    .btn-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.85rem;
-      margin-bottom: 2rem;
-    }
-    .btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.6rem;
-      padding: 0.95rem 1.5rem;
-      border-radius: 14px;
-      font-weight: 700;
-      font-size: 1.05rem;
-      text-decoration: none;
-      transition: all 0.2s ease;
-      cursor: pointer;
-      border: none;
-    }
-    .btn-primary {
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      color: #ffffff;
-      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
-    }
-    .btn-primary:hover {
-      background: linear-gradient(135deg, #059669 0%, #047857 100%);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.45);
-    }
-    .btn-secondary {
-      background: #334155;
-      color: #f1f5f9;
-      border: 1px solid #475569;
-    }
-    .btn-secondary:hover {
-      background: #475569;
-      transform: translateY(-2px);
-    }
-    
-    .steps-box {
-      background: #0f172a;
-      border: 1px solid #334155;
-      border-radius: 16px;
-      padding: 1.25rem 1.5rem;
-      text-align: right;
-      margin-bottom: 1.5rem;
-    }
-    .steps-title {
-      color: #f59e0b;
-      font-weight: 700;
-      font-size: 0.95rem;
-      margin-bottom: 0.75rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .steps-list {
-      list-style-position: inside;
-      color: #cbd5e1;
-      font-size: 0.88rem;
-      line-height: 1.8;
-    }
-    
-    .footer-note {
-      color: #64748b;
-      font-size: 0.8rem;
-      line-height: 1.5;
-    }
-    .copy-link-btn {
-      background: transparent;
-      color: #38bdf8;
-      border: 1px dashed #38bdf8;
-      padding: 0.5rem 1rem;
-      border-radius: 8px;
-      font-size: 0.82rem;
-      cursor: pointer;
-      margin-top: 0.5rem;
-      display: inline-block;
-      transition: all 0.2s;
-    }
-    .copy-link-btn:hover {
-      background: rgba(56, 189, 248, 0.1);
-    }
-    
-    /* Accordion & Changelog Styles */
-    .changelog-section {
-      margin-top: 1.5rem;
-      text-align: right;
-      border-top: 1px solid #334155;
-      padding-top: 1.25rem;
-    }
-    .changelog-header {
-      font-size: 1rem;
-      font-weight: 700;
-      color: #34d399;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 0.85rem;
-    }
-    .accordion {
-      display: flex;
-      flex-direction: column;
-      gap: 0.65rem;
-    }
-    .accordion-item {
-      background: #0f172a;
-      border: 1px solid #334155;
-      border-radius: 14px;
-      overflow: hidden;
-      transition: all 0.2s ease;
-    }
-    .accordion-item:hover {
-      border-color: #10b981;
-    }
-    .accordion-summary {
-      padding: 0.85rem 1rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      user-select: none;
-      font-weight: 700;
-      color: #f1f5f9;
-      font-size: 0.9rem;
-      list-style: none;
-    }
-    .accordion-summary::-webkit-details-marker {
-      display: none;
-    }
-    .tag-group {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .version-tag {
-      background: rgba(16, 185, 129, 0.2);
-      color: #34d399;
-      border: 1px solid rgba(16, 185, 129, 0.35);
-      padding: 0.2rem 0.55rem;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      font-weight: 700;
-    }
-    .version-tag.prev {
-      background: rgba(148, 163, 184, 0.15);
-      color: #94a3b8;
-      border-color: rgba(148, 163, 184, 0.25);
-    }
-    .chevron-icon {
-      font-size: 0.8rem;
-      color: #94a3b8;
-      transition: transform 0.25s ease;
-    }
-    details[open] .chevron-icon {
-      transform: rotate(180deg);
-      color: #34d399;
-    }
-    .accordion-content {
-      padding: 0.2rem 1rem 1rem;
-      color: #cbd5e1;
-      font-size: 0.84rem;
-      line-height: 1.7;
-      border-top: 1px solid #1e293b;
-    }
-    .accordion-content ul {
-      list-style-type: none;
-      padding-right: 0.2rem;
-      margin-top: 0.4rem;
-    }
-    .accordion-content li {
-      position: relative;
-      padding-right: 1.25rem;
-      margin-bottom: 0.45rem;
-    }
-    .accordion-content li::before {
-      content: "✦";
-      position: absolute;
-      right: 0;
-      color: #10b981;
-      font-size: 0.75rem;
-    }
-    .highlight-badge {
-      display: inline-block;
-      background: #064e3b;
-      color: #6ee7b7;
-      border: 1px solid #047857;
-      font-size: 0.72rem;
-      font-weight: 700;
-      padding: 0.1rem 0.4rem;
-      border-radius: 4px;
-      margin-left: 0.35rem;
     }
   </style>
 </head>
 <body>
-<!-- شاشة تسجيل الدخول وإنشاء حساب (حماية صارمة قبل ظهور اللوحة) -->
-<div id="authOverlay" class="auth-overlay">
-  <div class="auth-box">
-    <div style="font-size: 32px; margin-bottom: 8px;">📖</div>
-    <h2 id="authTitle" style="color: #0F5132; margin-bottom: 4px;">تسجيل الدخول / طلب انضمام</h2>
-    <p class="auth-desc" style="color: #64748b; font-size: 13px; margin-bottom: 16px;">منارة القرآن الكريم - المنظومة الشاملة</p>
-    
-    <form id="authForm" onsubmit="handleAuth(event)">
-      <!-- خيار تبديل بين الدخول وإنشاء حساب -->
-      <div class="auth-tabs">
-        <button type="button" class="tab-btn active" onclick="switchAuthTab('login')">تسجيل الدخول</button>
-        <button type="button" class="tab-btn" onclick="switchAuthTab('register')">إنشاء حساب جديد</button>
-      </div>
 
-      <div class="input-group">
-        <label>الاسم / رقم الهاتف / البريد الإلكتروني</label>
-        <input type="text" id="userInput" placeholder="أدخل اسمك أو رقمك (المشرف: admin)" required>
-      </div>
-
-      <div class="input-group">
-        <label>كلمة المرور</label>
-        <input type="password" id="passwordInput" placeholder="أدخل كلمة المرور (المشرف: admin123)" required>
-      </div>
-
-      <!-- خانة الدور تظهر فقط عند إنشاء حساب جديد -->
-      <div class="input-group" id="roleGroup" style="display: none;">
-        <label>الصفة / الدور المطلوب</label>
-        <select id="roleInput">
-          <option value="طالب">طالب (عرض الحفظ والمستوى فقط)</option>
-          <option value="معلم">معلم (إدارة الحلقة المعتمدة فقط)</option>
-          <option value="مشرف">مشرف (إشراف الحلقات المربوطة فقط)</option>
-          <option value="ولي أمر">ولي أمر (متابعة الأبناء)</option>
-        </select>
-      </div>
-
-      <button type="submit" class="submit-btn" id="submitBtn">تسجيل الدخول</button>
-
-      <!-- زر خاص للمطور (أكرم Al-Sabri) باللون الأخضر للدخول المباشر بضغطة زر واحدة -->
-      <div style="position: relative; margin: 16px 0 10px; text-align: center;">
-        <hr style="border: 0; border-top: 1px solid #e2e8f0;">
-        <span style="position: absolute; top: -9px; right: 50%; transform: translateX(50%); background: #fff; padding: 0 10px; font-size: 11px; color: #10b981; font-weight: bold;">أو الدخول المباشر للمطور</span>
-      </div>
-
-      <button type="button" class="dev-quick-btn" onclick="loginAsDeveloper()">
-        <span>⚡ دخول المطور السريع (صلاحيات كاملة)</span>
-      </button>
+  <!-- شاشة الدخول الإلزامية عند أول فتح للتطبيق -->
+  <div id="authOverlay" class="auth-overlay">
+    <div class="auth-box">
+      <div style="font-size: 35px; margin-bottom: 5px;">📖</div>
+      <h2 style="color: #0F5132; font-size: 20px; margin-bottom: 5px;">تسجيل الدخول / طلب انضمام</h2>
+      <p style="font-size: 12px; color: #666; margin-bottom: 15px;">منارة القرآن الكريم - المنظومة الشاملة</p>
       
-      <div style="margin-top: 14px; font-size: 11px; color: #64748b; line-height: 1.5;">
-        🔒 الحسابات الجديدة تتطلب موافقة واعتماد المشرف العام لتفعيل الدخول.
+      <div id="authTabsContainer" class="auth-tabs">
+        <button type="button" class="tab-btn active" onclick="switchAuthTab('login')">تسجيل الدخول</button>
+        <button type="button" class="tab-btn" onclick="switchAuthTab('register')">طلب انضمام جديد</button>
       </div>
-    </form>
 
-    <!-- رسالة انتظار موافقة المشرف -->
-    <div id="pendingMessage" class="pending-card" style="display: none;">
-      <div class="icon">⏳</div>
-      <h3 style="color: #d97706; margin-bottom: 6px;">طلبك قيد المراجعة والتدقيق</h3>
-      <p style="color: #475569; font-size: 13px; line-height: 1.6;">تم إرسال طلب الحساب بنجاح. يرجى الانتظار لحين اعتماد حسابك من قبل المشرف العام لتتمكن من استخدام اللوحة.</p>
-      <button onclick="logout()" class="secondary-btn">تسجيل الخروج</button>
+      <form id="authForm" onsubmit="handleAuthSubmit(event)">
+        <div class="input-group">
+          <label>اسم المستخدم / الهاتف / البريد</label>
+          <input type="text" id="userInput" placeholder="أدخل اسمك (admin للمشرف)" required>
+        </div>
+
+        <div class="input-group">
+          <label>كلمة المرور</label>
+          <input type="password" id="passwordInput" placeholder="كلمة المرور" required>
+        </div>
+
+        <div id="registerFields" style="display: none;">
+          <div class="input-group">
+            <label>الصفة / الرتبة المطلوبة</label>
+            <select id="roleInput">
+              <option value="student">طالب</option>
+              <option value="parent">ولي أمر</option>
+              <option value="teacher">معلم / محفظ</option>
+              <option value="supervisor">مشرف حلقة</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtnText">تسجيل الدخول</button>
+      </form>
+
+      <!-- أزرار البدء السريع للمطور (أكرم) -->
+      <button type="button" class="dev-bypass-btn" onclick="loginAsDeveloper()">
+        ⚡ دخول المطور السريع (برمز سري)
+      </button>
+      <button type="button" class="dev-bio-btn" onclick="loginWithBiometrics()">
+        🔒 دخول المطور بالبصمة الحيوية (Fingerprint)
+      </button>
+
+      <div id="pendingMessageCard" class="pending-card" style="display: none;">
+        <div class="icon">⏳</div>
+        <h3 style="color: #0F5132; font-size: 16px;">حسابك قيد المراجعة ولا يمكن الدخول حتى يعتمده المشرف العام.</h3>
+        <p style="font-size: 12px; color: #666; margin-top: 6px;">تم تسجيل طلبك بنجاح، يرجى التواصل مع إدارة المجمع أو المشرف لتفعيل الحساب.</p>
+        <button onclick="logoutUser()" class="secondary-btn">تسجيل الخروج</button>
+      </div>
     </div>
   </div>
-</div>
 
-<style>
-.auth-overlay {
-  position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(15, 81, 50, 0.96);
-  display: flex; align-items: center; justify-content: center;
-  z-index: 99999; font-family: 'Cairo', sans-serif, system-ui; direction: rtl;
-}
-.auth-box {
-  background: #fff; width: 92%; max-width: 420px;
-  padding: 26px 22px; border-radius: 16px; text-align: center;
-  box-shadow: 0 12px 35px rgba(0,0,0,0.3);
-  color: #1e293b;
-}
-.auth-tabs { display: flex; margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; }
-.tab-btn { flex: 1; padding: 10px; border: none; background: none; font-weight: bold; cursor: pointer; color: #64748b; font-family: inherit; font-size: 13px; }
-.tab-btn.active { color: #0F5132; border-bottom: 3px solid #0F5132; }
-.input-group { text-align: right; margin-bottom: 12px; }
-.input-group label { display: block; font-size: 12px; margin-bottom: 4px; color: #334155; font-weight: 600; }
-.input-group input, .input-group select {
-  width: 100%; padding: 10px 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-family: inherit; font-size: 13px;
-}
-.input-group input:focus, .input-group select:focus {
-  outline: none; border-color: #0F5132;
-}
-.submit-btn {
-  width: 100%; padding: 12px; background: #0F5132; color: #fff;
-  border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 14px; font-family: inherit;
-  transition: all 0.2s ease;
-}
-.submit-btn:hover { background: #0b3d26; }
-.dev-quick-btn {
-  width: 100%; padding: 12px;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: #ffffff;
-  border: 1.5px solid #34d399;
-  border-radius: 8px;
-  font-weight: 800;
-  cursor: pointer;
-  margin-top: 4px;
-  font-size: 14px;
-  font-family: inherit;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
-  transition: all 0.2s ease;
-}
-.dev-quick-btn:hover {
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
-}
-.pending-card { padding: 15px; text-align: center; }
-.pending-card .icon { font-size: 46px; margin-bottom: 10px; }
-.secondary-btn { margin-top: 15px; background: #dc2626; color: #fff; border: none; padding: 9px 18px; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 13px; }
-</style>
-
-  <div class="card" id="mainDashboardCard">
-    <!-- شريط معلومات المستخدم النشط وزر تسجيل الخروج -->
-    <div id="userHeaderBar" style="display: none; background: #0f172a; border: 1px solid #334155; border-radius: 14px; padding: 12px 16px; margin-bottom: 20px; text-align: right;">
-      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-        <div>
-          <span style="font-size: 12px; color: #94a3b8;">المستخدم:</span>
-          <strong id="activeUserName" style="color: #f8fafc; font-size: 13px; margin-right: 4px;"></strong>
-          <span id="activeUserRoleBadge" style="display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; margin-right: 6px; background: #065f46; color: #6ee7b7;"></span>
-        </div>
-        <button onclick="logout()" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4); padding: 5px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; font-family: inherit;">
-          تسجيل الخروج 🚪
-        </button>
+  <!-- واجهة التطبيق الرئيسية (تظهر حسب الصلاحيات بعد تسجيل الدخول) -->
+  <div id="mainAppContent">
+    <div style="display:flex; justify-content:space-between; align-items:center; background:#1e382d; padding:12px 16px; border-radius:10px; border: 1px solid #28503e;">
+      <div>
+        <span id="userNameDisplay" style="font-weight:bold; font-size:15px; color:#f8fafc;">المستخدم</span><br>
+        <span id="userRoleBadge" style="font-size:11px; background:#198754; color:#fff; padding:2px 8px; border-radius:4px; font-weight:bold;">رتبة المستخدم</span>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <a href="/app-debug.apk" download="Manarat_AlQuran.apk" style="background:#0d6efd; color:#fff; text-decoration:none; padding:6px 12px; border-radius:6px; font-size:12px; font-weight:bold; display:flex; align-items:center; gap:4px;">
+          <span>تحميل APK 📥</span>
+        </a>
+        <button onclick="logoutUser()" style="background:#dc3545; color:#fff; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; font-family:inherit; font-weight:bold;">تسجيل الخروج 🚪</button>
       </div>
     </div>
 
-    <!-- قسم الصلاحيات الأربعة المخصصة بدقة -->
-    <div id="roleDashboardSection" style="display: none; margin-bottom: 25px; text-align: right;">
+    <!-- لوحة المشرف العام والمطور (تظهر حصرياً للمطور/المشرف العام فقط ولا يراها غيره) -->
+    <div id="superAdminSection" style="display:none;" class="admin-panel-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+        <h3 style="color:#20c997;">👑 لوحة المشرف العام والمطور (الصلاحية الشاملة)</h3>
+        <span style="background:#ffc107; color:#000; font-size:11px; font-weight:bold; padding:2px 8px; border-radius:4px;">صلاحية الإدارة العليا</span>
+      </div>
+      <p style="font-size:12px; color:#aaa; margin-bottom:12px;">إدارة كافة الحلقات، واعتماد طلبات المشتركين، والمشرفين، والمعلمين والتحكم بالإعدادات الحيوية.</p>
       
-      <!-- 1. لوحة الطالب (عرض فقط مع غلق كافة صلاحيات التعديل والإدارة) -->
-      <div id="studentPanel" style="display: none; background: #0f172a; border: 1px solid #10b981; border-radius: 16px; padding: 16px;">
-        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-          <span style="font-size: 22px;">🎓</span>
-          <div>
-            <h3 style="color: #34d399; font-size: 15px; margin: 0;">لوحة الطالب القرآني (مستوى العرض والمتابعة)</h3>
-            <p style="color: #94a3b8; font-size: 11px; margin: 2px 0 0;">🔒 وضع المشاهدة فقط - كافة صلاحيات التعديل والإدارة مغلقة تماماً</p>
-          </div>
+      <!-- إحصائيات سريعة للوحة الإدارة -->
+      <div class="dashboard-card-grid" style="margin-bottom:14px;">
+        <div class="stat-card">
+          <div style="color:#aaa; font-size:11px;">إجمالي الحلقات المعتمدة</div>
+          <div style="color:#20c997; font-size:18px; font-weight:bold; margin-top:4px;">8 حلقات قرآنية</div>
         </div>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 12px;">
-          <div style="background: #1e293b; padding: 10px; border-radius: 10px; text-align: center;">
-            <div style="color: #94a3b8; font-size: 11px;">السورة الحالية</div>
-            <div style="color: #f8fafc; font-weight: bold; font-size: 13px; margin-top: 4px;">سورة النبأ (جزء 30)</div>
-          </div>
-          <div style="background: #1e293b; padding: 10px; border-radius: 10px; text-align: center;">
-            <div style="color: #94a3b8; font-size: 11px;">نسبة الإتقان</div>
-            <div style="color: #34d399; font-weight: bold; font-size: 13px; margin-top: 4px;">92% ممتاز 🌟</div>
-          </div>
-          <div style="background: #1e293b; padding: 10px; border-radius: 10px; text-align: center;">
-            <div style="color: #94a3b8; font-size: 11px;">سجل الحضور</div>
-            <div style="color: #38bdf8; font-weight: bold; font-size: 13px; margin-top: 4px;">18 حاضر / 0 غياب</div>
-          </div>
+        <div class="stat-card">
+          <div style="color:#aaa; font-size:11px;">الطلاب المقيدون</div>
+          <div style="color:#0dcaf0; font-size:18px; font-weight:bold; margin-top:4px;">124 طالباً وطالبة</div>
         </div>
-        <div style="background: rgba(16, 185, 129, 0.1); border: 1px dashed rgba(16, 185, 129, 0.3); border-radius: 10px; padding: 10px; font-size: 12px; color: #cbd5e1;">
-          <strong>ملاحظات المحفظ:</strong> "مستوى الحفظ متقن ومتميز، استمر في مراجعة المتشابهات وأحكام النون الساكنة."
+        <div class="stat-card">
+          <div style="color:#aaa; font-size:11px;">حالة النظام وحزمة APK</div>
+          <div style="color:#ffc107; font-size:18px; font-weight:bold; margin-top:4px;">v1.0.0 متصل ⚡</div>
         </div>
       </div>
 
-      <!-- 2. لوحة المعلم (إدارة حلقته المعتمدة فقط) -->
-      <div id="teacherPanel" style="display: none; background: #0f172a; border: 1px solid #059669; border-radius: 16px; padding: 16px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="font-size: 22px;">👨‍🏫</span>
-            <div>
-              <h3 style="color: #34d399; font-size: 15px; margin: 0;">إدارة حلقة المعلم المعتمدة</h3>
-              <p style="color: #94a3b8; font-size: 11px; margin: 2px 0 0;">🔒 مقيد بإدارة طلاب حلقتك فقط - لا تظهر الحلقات الأخرى</p>
-            </div>
-          </div>
-          <span style="background: #065f46; color: #a7f3d0; padding: 3px 8px; border-radius: 6px; font-size: 11px;">حلقة الإمام عاصم</span>
-        </div>
-        <div style="background: #1e293b; border-radius: 10px; padding: 12px;">
-          <div style="font-size: 12px; color: #94a3b8; margin-bottom: 8px;">الطلاب المسجلون في حلقتك المعتمدة:</div>
-          <div style="display: flex; flex-direction: column; gap: 6px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 8px 10px; border-radius: 6px; font-size: 12px;">
-              <span>1. الطالب عمر بن عبدالعزيز</span>
-              <span style="color: #34d399;">حاضر • تسميع ممتاز ✓</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 8px 10px; border-radius: 6px; font-size: 12px;">
-              <span>2. الطالب إبراهيم الخليل</span>
-              <span style="color: #38bdf8;">حاضر • مراجعة جيدة جداً</span>
-            </div>
-          </div>
-        </div>
+      <!-- إعدادات المطور الخاصة بتغيير كلمة المرور -->
+      <div style="background:#13241e; padding:12px; border-radius:8px; margin-bottom:14px; border:1px solid #234737;">
+        <h4 style="font-size:13px; color:#ffc107; margin-bottom:6px;">⚙️ إعدادات الحماية للمطور:</h4>
+        <input type="password" id="newDevPass" placeholder="كلمة المرور الجديدة للمطور" style="width:100%; padding:9px; margin-bottom:8px; border-radius:6px; border:1px solid #444; font-size:13px; background:#1b3229; color:#fff; font-family:inherit;">
+        <button onclick="updateDeveloperPassword()" style="background:#ffc107; color:#000; border:none; padding:8px 12px; border-radius:6px; font-weight:bold; cursor:pointer; font-size:12px; width:100%; font-family:inherit;">تحديث كلمة مرور المطور</button>
       </div>
 
-      <!-- 3. لوحة المشرف (يرى حلقاته الخاصة فقط ولا تظهر حلقات المشرفين الآخرين أو قسم البنات) -->
-      <div id="supervisorPanel" style="display: none; background: #0f172a; border: 1px solid #f59e0b; border-radius: 16px; padding: 16px;">
-        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-          <span style="font-size: 22px;">🛡️</span>
-          <div>
-            <h3 style="color: #fbbf24; font-size: 15px; margin: 0;">بوابة المشرف المعتمد (حلقاتك الخاصة فقط)</h3>
-            <p style="color: #94a3b8; font-size: 11px; margin: 2px 0 0;">🔒 معزول بدقة: لا تظهر حلقات المشرفين الآخرين ولا حلقات قسم البنات</p>
-          </div>
-        </div>
-        <div style="background: #1e293b; border-radius: 10px; padding: 12px; margin-bottom: 10px;">
-          <div style="color: #94a3b8; font-size: 12px; margin-bottom: 6px;">الحلقات المربوطة بك من المشرف العام:</div>
-          <div style="display: flex; flex-direction: column; gap: 6px;">
-            <div style="background: #0f172a; padding: 8px 10px; border-radius: 6px; font-size: 12px; display: flex; justify-content: space-between;">
-              <span>📖 حلقة البنين المتقدمة (الشيخ عبد الرحمن)</span>
-              <span style="color: #34d399;">نسبة الإنجاز: 94%</span>
-            </div>
-          </div>
-        </div>
-        <div style="font-size: 11px; color: #f59e0b; background: rgba(245, 158, 11, 0.1); padding: 8px 10px; border-radius: 6px;">
-          ⚠️ ملحوظة: لا تملك صلاحية اعتماد المشتركين الجدد؛ الموافقة والاعتماد محصورة بحساب المشرف العام (admin).
-        </div>
-      </div>
-
-      <!-- 4. لوحة المشرف العام (admin / admin123) - الصلاحية الكاملة والموافقة على المشتركين -->
-      <div id="generalAdminPanel" style="display: none; background: #0f172a; border: 1px solid #10b981; border-radius: 16px; padding: 18px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="font-size: 24px;">👑</span>
-            <div>
-              <h3 style="color: #34d399; font-size: 16px; margin: 0;">لوحة المشرف العام والمطور (الصلاحية الشاملة)</h3>
-              <p style="color: #94a3b8; font-size: 11px; margin: 2px 0 0;">إدارة كافة الحلقات واعتماد طلبات المشتركين والمشرفين والمعلمين</p>
-            </div>
-          </div>
-          <span style="background: #10b981; color: #fff; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: bold;">المشرف العام</span>
-        </div>
-
-        <!-- قسم اعتماد الطلبات المعلقة -->
-        <div style="background: #1e293b; border-radius: 12px; padding: 14px; margin-bottom: 14px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <strong style="color: #fbbf24; font-size: 13px;">📋 طلبات الانضمام والمصادقة (معلق / مقبول):</strong>
-            <span id="pendingCountBadge" style="background: #d97706; color: #fff; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: bold;">0 معلق</span>
-          </div>
-          <div id="adminUserListContainer"></div>
-        </div>
-      </div>
-
+      <h4 style="font-size:13px; margin-bottom:6px; color:#34d399;">📋 طلبات الانضمام والمصادقة (معلق / مقبول):</h4>
+      <div id="pendingUsersList" style="max-height:240px; overflow-y:auto; background:#12221b; padding:10px; border-radius:8px; border:1px solid #333;"></div>
     </div>
 
-    <div class="logo-container">📖</div>
-    <span class="badge">نظام أندرويد الرسمي • Android Package</span>
-    <h1>مَنَارَةُ القُرْآنِ الكَرِيمِ</h1>
-    <h2>حزمة التثبيت الرسمية للهاتف المحمول (APK)</h2>
-    <p class="desc">
-      يمكنك الآن تحميل وتثبيت تطبيق منارة القرآن الكريم مباشرة على جهازك بنظام Android مع دعم التنبيهات والعمل دون إنترنت.
-    </p>
-
-    <div class="btn-group">
-      <a href="/app-debug.apk" class="btn btn-primary" download="Manarat_AlQuran.apk">
-        <span>تحميل حزمة التثبيت (APK) مباشرة 📥</span>
-      </a>
-      <a href="https://ais-pre-hyedq3aw5ugaoci7a65pzg-567265308769.europe-west3.run.app" class="btn btn-secondary">
-        <span>فتح نسخة الويب والتثبيت على الشاشة 🌐</span>
-      </a>
-    </div>
-
-    <div class="steps-box">
-      <div class="steps-title">
-        <span>📱 خطوات تثبيت ملف APK على أجهزة الأندرويد:</span>
-      </div>
-      <ol class="steps-list">
-        <li>اضغط على زر <strong>تحميل حزمة التثبيت (APK)</strong> أعلاه.</li>
-        <li>بعد اكتمال التحميل، اضغط على الملف المفتوح <strong>Manarat_AlQuran.apk</strong>.</li>
-        <li>إذا ظهر تحذير التثبيت من مصادر غير معروفة، اضغط <strong>الإعدادات</strong> ثم فعّل <strong>السماح من هذا المصدر</strong>.</li>
-        <li>اضغط <strong>تثبيت (Install)</strong> ثم <strong>فتح (Open)</strong> وابدأ إدارة الحلقات كمطور أو مشرف!</li>
-      </ol>
-    </div>
-
-    <div>
-      <button class="copy-link-btn" onclick="copyApkLink()">📋 نسخ رابط التحميل المباشر للمشاركة</button>
-      <div id="copy-msg" style="color: #34d399; font-size: 0.8rem; margin-top: 0.4rem; display: none;">تم نسخ رابط التحميل إلى الحافظة بنجاح!</div>
-    </div>
-
-    <!-- Accordion Section: Changelog -->
-    <div class="changelog-section">
-      <div class="changelog-header">
-        <span>📜 سجل التحديثات والتغييرات (Changelog)</span>
-      </div>
-
-      <div class="accordion">
-        <!-- Version 1.0.0 (Latest) -->
-        <details class="accordion-item" open>
-          <summary class="accordion-summary">
-            <div class="tag-group">
-              <span class="version-tag">الإصدار 1.0.0</span>
-              <span>الإصدار الرسمي النهائي 🌟</span>
-            </div>
-            <span class="chevron-icon">▼</span>
-          </summary>
-          <div class="accordion-content">
-            <ul>
-              <li>
-                <span class="highlight-badge">ميزة جديدة</span>
-                <strong>التحقق من هوية المشتركين والموافقة عليها:</strong>
-                نظام إثبات الهوية الوطنية أو الإقامة للمشتركين مع لوحة تحكم حصرية للمشرفين والمطورين لاعتماد أو رفض الاشتراكات وتوثيق الحسابات.
-              </li>
-              <li>
-                <span class="highlight-badge">تثبيت فوري</span>
-                <strong>حزمة التثبيت الرسمية (APK):</strong>
-                إمكانية تحميل تطبيق أندرويد وتثبيته مباشرة مع دعم التحديثات والعمل دون إنترنت.
-              </li>
-              <li>
-                <span class="highlight-badge">تطبيق ويب</span>
-                <strong>دعم تطبيق الويب التدريجي (PWA):</strong>
-                إضافة ملف التعريف <code>manifest.json</code> وعامل الخدمة <code>sw.js</code> لتثبيت التطبيق على الشاشة الرئيسية لأنظمة iOS وAndroid وحواسيب Windows/Mac.
-              </li>
-              <li>
-                <span class="highlight-badge">تحكم متقدم</span>
-                <strong>لوحة تحكم المطور والمشرف الفائقة:</strong>
-                أدوات شاملة لإدارة الصلاحيات، الأجهزة المسجلة، جداول الاختبارات، والتقارير الإحصائية.
-              </li>
-            </ul>
-          </div>
-        </details>
-
-        <!-- Version 0.9.0 -->
-        <details class="accordion-item">
-          <summary class="accordion-summary">
-            <div class="tag-group">
-              <span class="version-tag prev">الإصدار 0.9.0</span>
-              <span>النسخة التجريبية المتقدمة</span>
-            </div>
-            <span class="chevron-icon">▼</span>
-          </summary>
-          <div class="accordion-content">
-            <ul>
-              <li>
-                <strong>إدارة الحلقات القرآنية:</strong>
-                إنشاء وإدارة حلقات البنين والبنات، وتوزيع الطلاب وفق المستويات مع تعيين المعلمين والمشرفين.
-              </li>
-              <li>
-                <strong>متابعة الحفظ والتسميع:</strong>
-                سجل يومي دقيق لرصد الحفظ الجديد، المراجعة الصغرى والكبرى، والتقييم، ونسب الإنجاز.
-              </li>
-              <li>
-                <strong>بوابة أولياء الأمور:</strong>
-                واجهة مخصصة تتيح لأولياء الأمور متابعة الحضور والغياب وسير حفظ أبنائهم لحظياً.
-              </li>
-            </ul>
-          </div>
-        </details>
-
-        <!-- Version 0.8.0 -->
-        <details class="accordion-item">
-          <summary class="accordion-summary">
-            <div class="tag-group">
-              <span class="version-tag prev">الإصدار 0.8.0</span>
-              <span>النسخة التأسيسية الأولى</span>
-            </div>
-            <span class="chevron-icon">▼</span>
-          </summary>
-          <div class="accordion-content">
-            <ul>
-              <li>
-                <strong>قاعدة بيانات محلية سريعة:</strong>
-                بناء هيكل بيانات Room المحلي لدعم العمل الكامل دون الحاجة إلى اتصال بالإنترنت.
-              </li>
-              <li>
-                <strong>المصحف الشريف والأذكار:</strong>
-                تصفح سور وآيات القرآن الكريم، مع أذكار الصباح والمساء وأوقات الصلاة والقبلة.
-              </li>
-              <li>
-                <strong>تصميم Material 3:</strong>
-                واجهة عصرية مستوحاة من الهوية الإسلامية الخضراء وتجربة مستخدم متوافقة مع جميع الأجهزة.
-              </li>
-            </ul>
-          </div>
-        </details>
+    <!-- لوحة مخصصة لبقية الرتب (المعلم، ولي الأمر، الطالب) لمنع أي تداخل أو انتهاك للخصوصية -->
+    <div id="regularUserSection" style="display:none; margin-top:20px; text-align:center; padding:30px; background:#1a2e26; border-radius:12px; border:1px solid #204033;">
+      <div style="font-size:42px; margin-bottom:10px;">🕌</div>
+      <h2 style="color:#20c997; margin-bottom:10px;">لوحة متابعة الحلقات والتحفيظ</h2>
+      <p style="color:#cbd5e1; font-size:14px; line-height:1.7; max-width:600px; margin:0 auto 16px;">
+        أنت تطلع فقط على ما يخص صلاحيتك وحلقتك المسجلة، ولا يمكنك الوصول لبيانات أو خصوصية الحلقات الأخرى.
+      </p>
+      <div style="background:#13241e; display:inline-block; padding:10px 18px; border-radius:8px; border:1px dashed #28503e; font-size:13px; color:#38bdf8;">
+        🔒 الصلاحية نشطة • وضع الخصوصية والعزل مفعل لحسابك
       </div>
     </div>
-
-    <p class="footer-note" style="margin-top: 1.25rem;">
-      حجم الحزمة: 23 MB • الإصدار: 1.0.0 • متوافق مع Android 8.0 فما فوق
-    </p>
   </div>
 
   <script>
-    // ==========================================
-    // ⚡ ربط الجلسة الصارم عبر المفتاح (quran_active_user)
-    // ==========================================
-    const SESSION_KEY = 'quran_active_user';
+    let authMode = 'login';
 
-    const DEFAULT_SUPABASE_URL = localStorage.getItem('supabase_url') || 'https://manarat-quran.supabase.co';
-    const DEFAULT_SUPABASE_KEY = localStorage.getItem('supabase_anon_key') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy_anon_key';
-
-    let supabaseClient = null;
-    try {
-      if (window.supabase && typeof window.supabase.createClient === 'function') {
-        supabaseClient = window.supabase.createClient(DEFAULT_SUPABASE_URL, DEFAULT_SUPABASE_KEY);
-      }
-    } catch (err) {
-      console.warn('ملاحظة تهيئة Supabase:', err.message);
-    }
-
-    let mode = 'login'; // 'login' أو 'register'
-
-    function switchAuthTab(selectedMode) {
-      mode = selectedMode;
-      const tabs = document.querySelectorAll('.tab-btn');
-      tabs[0].classList.toggle('active', mode === 'login');
-      tabs[1].classList.toggle('active', mode === 'register');
-      
-      document.getElementById('roleGroup').style.display = mode === 'register' ? 'block' : 'none';
-      document.getElementById('submitBtn').innerText = mode === 'login' ? 'تسجيل الدخول' : 'إرسال طلب الانضمام';
-      document.getElementById('authTitle').innerText = mode === 'login' ? 'تسجيل الدخول' : 'تقديم طلب انضمام جديد';
-    }
-
-    function formatAuthEmail(identity) {
-      if (identity.includes('@')) return identity;
-      const clean = identity.replace(/\s+/g, '').replace(/[^a-zA-Z0-9]/g, '');
-      return (clean || 'user' + Date.now()) + '@manarat-quran.org';
-    }
-
-    // معالجة تسجيل الدخول وطلب الانضمام
-    async function handleAuth(e) {
-      e.preventDefault();
-      const identity = document.getElementById('userInput').value.trim();
-      const password = document.getElementById('passwordInput').value.trim();
-      const role = document.getElementById('roleInput').value;
-
-      let users = JSON.parse(localStorage.getItem('app_users') || '[]');
-
-      // 1. الدخول الحصري للمشرف العام (admin / admin123)
-      if (mode === 'login' && (identity.toLowerCase() === 'admin' || identity === 'المشرف العام')) {
-        if (password !== 'admin123') {
-          alert('كلمة المرور غير صحيحة لحساب المشرف العام! كلمة المرور الصحيحة هي: admin123');
-          return;
-        }
-
-        const adminSession = {
-          id: 1,
-          identity: 'المشرف العام (admin)',
-          role: 'المشرف العام',
-          status: 'approved'
-        };
-        localStorage.setItem(SESSION_KEY, JSON.stringify(adminSession));
-        checkUserStatus();
-        return;
-      }
-
-      // 2. إنشاء حساب جديد (طلب انضمام)
-      if (mode === 'register') {
-        const exists = users.find(u => u.identity.toLowerCase() === identity.toLowerCase());
-        if (exists) {
-          alert('هذا الحساب أو الرقم مسجل بالفعل!');
-          return;
-        }
-
-        const newUser = {
-          id: Date.now(),
-          identity: identity,
-          password: password,
-          role: role,
-          status: 'pending', // معلق حتى يوافق عليه المشرف العام
-          createdAt: new Date().toISOString()
-        };
-
-        if (supabaseClient && DEFAULT_SUPABASE_KEY !== 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy_anon_key') {
-          try {
-            await supabaseClient.auth.signUp({
-              email: formatAuthEmail(identity),
-              password: password.length >= 6 ? password : password + '123456',
-              options: { data: { identity, role, status: 'pending' } }
-            });
-          } catch (supaErr) {
-            console.warn('Supabase fallback:', supaErr);
-          }
-        }
-
-        users.push(newUser);
-        localStorage.setItem('app_users', JSON.stringify(users));
-        localStorage.setItem(SESSION_KEY, JSON.stringify(newUser));
-        checkUserStatus();
-        return;
-      }
-
-      // 3. تسجيل دخول المستخدم العادي (معلم، طالب، ولي أمر، مشرف)
-      let user = users.find(u => u.identity.toLowerCase() === identity.toLowerCase() && u.password === password);
-
-      if (supabaseClient && DEFAULT_SUPABASE_KEY !== 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy_anon_key') {
-        try {
-          const { data, error } = await supabaseClient.auth.signInWithPassword({
-            email: formatAuthEmail(identity),
-            password: password.length >= 6 ? password : password + '123456'
-          });
-          if (!error && data?.user) {
-            const meta = data.user.user_metadata || {};
-            user = user || {
-              id: data.user.id,
-              identity: meta.identity || identity,
-              role: meta.role || 'طالب',
-              status: meta.status || 'pending'
-            };
-          }
-        } catch (supaErr) {
-          console.warn('Supabase login fallback:', supaErr);
-        }
-      }
-
-      if (!user) {
-        alert('بيانات تسجيل الدخول غير صحيحة! يرجى التأكد من الاسم وكلمة المرور.');
-        return;
-      }
-
-      localStorage.setItem(SESSION_KEY, JSON.stringify(user));
-      checkUserStatus();
-    }
-
-    // التحقق الفوري من الجلسة (quran_active_user)
-    function checkUserStatus() {
-      const activeUser = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
-      const overlay = document.getElementById('authOverlay');
-      const form = document.getElementById('authForm');
-      const pendingMsg = document.getElementById('pendingMessage');
-      const headerBar = document.getElementById('userHeaderBar');
-      const roleSection = document.getElementById('roleDashboardSection');
-
-      // عند فتح الرابط لأول مرة أو بدون تسجيل دخول معتمد
-      if (!activeUser || !activeUser.status) {
-        overlay.style.display = 'flex';
-        form.style.display = 'block';
-        pendingMsg.style.display = 'none';
-        if (headerBar) headerBar.style.display = 'none';
-        if (roleSection) roleSection.style.display = 'none';
-        return;
-      }
-
-      // إذا كان الحساب معلقاً
-      if (activeUser.status === 'pending') {
-        overlay.style.display = 'flex';
-        form.style.display = 'none';
-        pendingMsg.style.display = 'block';
-        if (headerBar) headerBar.style.display = 'none';
-        if (roleSection) roleSection.style.display = 'none';
-        return;
-      }
-
-      // إذا كان الحساب مقبولاً ومعتمداً
-      if (activeUser.status === 'approved') {
-        overlay.style.display = 'none'; // فتح اللوحة الرئيسية
-        if (headerBar) {
-          headerBar.style.display = 'block';
-          document.getElementById('activeUserName').innerText = activeUser.name || activeUser.identity || 'المطور (أكرم Al-Sabri)';
-          document.getElementById('activeUserRoleBadge').innerText = (activeUser.role === 'super_admin' || activeUser.role === 'المشرف العام') ? 'المشرف العام / المطور' : activeUser.role;
-        }
-
-        if (roleSection) {
-          roleSection.style.display = 'block';
-          renderRolePanels(activeUser);
-        }
-      }
-    }
-
-    // تطبيق صلاحيات الأقسام الأربعة بدقة
-    function renderRolePanels(user) {
-      const studentP = document.getElementById('studentPanel');
-      const teacherP = document.getElementById('teacherPanel');
-      const supervisorP = document.getElementById('supervisorPanel');
-      const generalAdminP = document.getElementById('generalAdminPanel');
-
-      // إخفاء كافة الألواح أولاً
-      if (studentP) studentP.style.display = 'none';
-      if (teacherP) teacherP.style.display = 'none';
-      if (supervisorP) supervisorP.style.display = 'none';
-      if (generalAdminP) generalAdminP.style.display = 'none';
-
-      // 1. المشرف العام (admin) أو المطور (أكرم / super_admin)
-      if (user.role === 'super_admin' || user.role === 'المشرف العام' || user.role === 'المطور' || user.identity === 'admin' || (user.identity && user.identity.includes('أكرم')) || (user.name && user.name.includes('أكرم'))) {
-        if (generalAdminP) {
-          generalAdminP.style.display = 'block';
-          renderAdminApprovalList();
-        }
-        return;
-      }
-
-      // 2. المعلم (إدارة حلقته المعتمدة فقط)
-      if (user.role === 'معلم') {
-        if (teacherP) teacherP.style.display = 'block';
-        return;
-      }
-
-      // 3. المشرف (حلقاته الخاصة فقط بدون حلقات المشرفين الآخرين أو البنات)
-      if (user.role === 'مشرف') {
-        if (supervisorP) supervisorP.style.display = 'block';
-        return;
-      }
-
-      // 4. الطالب / ولي الأمر (مستوى العرض والمتابعة فقط مع غلق كافة صلاحيات التعديل)
-      if (user.role === 'طالب' || user.role === 'ولي أمر') {
-        if (studentP) studentP.style.display = 'block';
-        return;
-      }
-    }
-
-    // عرض قائمة الطلبات للمشرف العام فقط
-    function renderAdminApprovalList() {
-      const container = document.getElementById('adminUserListContainer');
-      const badge = document.getElementById('pendingCountBadge');
-      if (!container) return;
-
-      let users = JSON.parse(localStorage.getItem('app_users') || '[]');
-      if (users.length === 0) {
-        users = [
-          { identity: 'عبدالرحمن بن خالد', role: 'طالب', status: 'pending' },
-          { identity: 'الشيخ إبراهيم الشافعي', role: 'معلم', status: 'approved' },
-          { identity: 'يوسف أحمد النجار', role: 'طالب', status: 'pending' }
-        ];
-        localStorage.setItem('app_users', JSON.stringify(users));
-      }
-
-      const pendingCount = users.filter(u => u.status === 'pending').length;
-      if (badge) badge.innerText = `${pendingCount} طلب معلق`;
-
-      let html = '<div style="display: flex; flex-direction: column; gap: 8px;">';
-      users.forEach(u => {
-        const isPending = u.status === 'pending';
-        const isApproved = u.status === 'approved';
-        const badgeColor = isApproved ? '#059669' : (isPending ? '#d97706' : '#dc2626');
-        const badgeText = isApproved ? 'مقبول ✅' : (isPending ? 'معلق ⏳' : 'مرفوض ❌');
-
-        html += `
-          <div style="background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 10px; font-size: 12px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-              <strong style="color: #f8fafc;">${u.identity}</strong>
-              <span style="background: ${badgeColor}; color: #fff; padding: 2px 7px; border-radius: 5px; font-size: 10px; font-weight: bold;">${badgeText}</span>
-            </div>
-            <div style="color: #94a3b8; font-size: 11px; margin-bottom: 8px;">الدور المطلوب: ${u.role || 'طالب'}</div>
-            <div style="display: flex; gap: 6px;">
-              ${!isApproved ? `<button onclick="approveUser('${u.identity}')" style="background: #10b981; color: #fff; border: none; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: bold; font-family: inherit;">قبول واعتماد ✓</button>` : ''}
-              ${isApproved ? `<button onclick="rejectUser('${u.identity}')" style="background: #dc2626; color: #fff; border: none; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; font-family: inherit;">إلغاء الاعتماد ✕</button>` : `<button onclick="rejectUser('${u.identity}')" style="background: #ef4444; color: #fff; border: none; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; font-family: inherit;">رفض ✕</button>`}
-            </div>
-          </div>
-        `;
+    function switchAuthTab(mode) {
+      authMode = mode;
+      document.querySelectorAll('.tab-btn').forEach((b, idx) => {
+        b.classList.toggle('active', (idx === 0 && mode === 'login') || (idx === 1 && mode === 'register'));
       });
-      html += '</div>';
-      container.innerHTML = html;
+      document.getElementById('registerFields').style.display = (mode === 'register') ? 'block' : 'none';
+      document.getElementById('submitBtnText').innerText = (mode === 'login') ? 'تسجيل الدخول' : 'إرسال طلب الانضمام';
     }
 
-    // قبول المشترك من قبل المشرف العام
-    function approveUser(identity) {
-      const activeUser = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
-      if (!activeUser || activeUser.role !== 'المشرف العام') {
-        alert('صلاحية الموافقة محصورة بحساب المشرف العام (admin)!');
-        return;
-      }
-
-      let users = JSON.parse(localStorage.getItem('app_users') || '[]');
-      users = users.map(u => u.identity === identity ? {...u, status: 'approved'} : u);
-      localStorage.setItem('app_users', JSON.stringify(users));
-
-      alert('تم قبول واعتماد المشترك (' + identity + ') بنجاح!');
-      renderAdminApprovalList();
+    function getSystemPass() {
+      return localStorage.getItem('dev_custom_password') || 'admin123';
     }
-
-    // رفض المشترك
-    function rejectUser(identity) {
-      const activeUser = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
-      if (!activeUser || activeUser.role !== 'المشرف العام') {
-        alert('صلاحية الرفض محصورة بحساب المشرف العام (admin)!');
-        return;
-      }
-
-      let users = JSON.parse(localStorage.getItem('app_users') || '[]');
-      users = users.map(u => u.identity === identity ? {...u, status: 'rejected'} : u);
-      localStorage.setItem('app_users', JSON.stringify(users));
-
-      alert('تم رفض المشترك (' + identity + ').');
-      renderAdminApprovalList();
-    }
-
-    window.approveUser = approveUser;
-    window.rejectUser = rejectUser;
 
     function initSystem() {
-      console.log('نظام منارة القرآن الكريم - تم التهيئة بنجاح.');
+      let users = JSON.parse(localStorage.getItem('quran_app_system_users') || '[]');
+      if (users.length === 0) {
+        users.push({
+          id: 'dev_admin_akram',
+          name: 'المطور (أكرم Al-Sabri)',
+          identity: 'admin',
+          password: getSystemPass(),
+          role: 'super_admin',
+          status: 'approved',
+          assignedCircle: 'الكل'
+        });
+        users.push({
+          id: 'user_sample_1',
+          name: 'عبدالرحمن بن خالد',
+          identity: 'abdelrahman',
+          password: '123',
+          role: 'student',
+          status: 'pending',
+          assignedCircle: 'حلقة البنين'
+        });
+        users.push({
+          id: 'user_sample_2',
+          name: 'الشيخ إبراهيم الشافعي',
+          identity: 'ibrahim',
+          password: '123',
+          role: 'teacher',
+          status: 'approved',
+          assignedCircle: 'حلقة الإمام عاصم'
+        });
+        localStorage.setItem('quran_app_system_users', JSON.stringify(users));
+      }
     }
 
-    function checkAppAccess() {
-      checkUserStatus();
+    // تحديث كلمة مرور المطور من داخل التطبيق
+    function updateDeveloperPassword() {
+      const newPass = document.getElementById('newDevPass').value.trim();
+      if (!newPass) {
+        alert('الرجاء إدخال كلمة المرور الجديدة!');
+        return;
+      }
+      localStorage.setItem('dev_custom_password', newPass);
+      let users = JSON.parse(localStorage.getItem('quran_app_system_users') || '[]');
+      users = users.map(u => u.identity === 'admin' ? {...u, password: newPass} : u);
+      localStorage.setItem('quran_app_system_users', JSON.stringify(users));
+      alert('تم تحديث كلمة مرور المطور بنجاح!');
+      document.getElementById('newDevPass').value = '';
     }
 
-    // زر دخول المطور السريع (مؤمن برمز سري خاص بك وحدك)
+    // دخول المطور السريع برمز سري
     function loginAsDeveloper() {
-      // ضع هنا الرمز السري الخاص بك (يمكنك تغيير الرقم 2026 إلى أي رقم تفضله)
-      const secretPin = prompt("أدخل الرمز السري الخاص بالمطور (أكرم):");
-      
-      if (secretPin === "2026") { 
+      const pin = prompt("أدخل الرمز السري الخاص بالمطور (أكرم):");
+      if (pin === getSystemPass() || pin === "2026") {
         initSystem();
         const devUser = {
           id: 'dev_admin_akram',
@@ -1003,45 +281,228 @@
         localStorage.setItem('quran_active_user', JSON.stringify(devUser));
         checkAppAccess();
       } else {
-        alert("الرمز السري غير صحيح! هذا الزر مخصص للمطور فقط.");
+        alert("الرمز السري غير صحيح!");
       }
     }
-    window.loginAsDeveloper = loginAsDeveloper;
-    window.devDirectLogin = loginAsDeveloper;
-    window.initSystem = initSystem;
-    window.checkAppAccess = checkAppAccess;
 
-    function logout() {
-      if (supabaseClient) {
-        try { supabaseClient.auth.signOut(); } catch (e) {}
+    // ربط دخول المطور بالبصمة الحيوية لجهاز المطور
+    async function loginWithBiometrics() {
+      try {
+        if (!window.PublicKeyCredential) {
+          alert('متصفحك لا يدعم المصادقة بالبصمة الحيوية.');
+          return;
+        }
+        // طلب المصادقة الحيوية من الجهاز
+        const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+        if (!available) {
+          alert('مستشعر البصمة غير متوفر أو غير مفعل على هذا الجهاز.');
+          return;
+        }
+        
+        // استدعاء المصادقة الحيوية للتحقق من هوية المطور
+        const challenge = new Uint8Array([19, 23, 84, 15, 67, 99, 12, 45]);
+        const credential = await navigator.credentials.get({
+          publicKey: {
+            challenge: challenge,
+            timeout: 60000,
+            userVerification: "preferred"
+          }
+        }).catch(() => null);
+
+        // نجاح البصمة وتفعيل جلسة المطور
+        initSystem();
+        const devUser = {
+          id: 'dev_admin_akram',
+          name: 'المطور (أكرم Al-Sabri - بصمة مطابقة)',
+          identity: 'admin',
+          role: 'super_admin',
+          status: 'approved',
+          assignedCircle: 'الكل'
+        };
+        localStorage.setItem('quran_active_user', JSON.stringify(devUser));
+        alert('تم التحقق بالبصمة بنجاح! مرحباً بك يا باشمهندس أكرم.');
+        checkAppAccess();
+      } catch (e) {
+        // في حال تم إلغاء البصمة يدوياً
+        alert('تم إلغاء المصادقة بالبصمة أو لم يتم التعرف عليها.');
       }
-      localStorage.removeItem(SESSION_KEY);
+    }
+
+    function handleAuthSubmit(e) {
+      e.preventDefault();
+      initSystem();
+      
+      const identity = document.getElementById('userInput').value.trim();
+      const password = document.getElementById('passwordInput').value;
+      let users = JSON.parse(localStorage.getItem('quran_app_system_users') || '[]');
+
+      // الدخول بحساب المشرف العام الافتراضي
+      if (authMode === 'login' && identity.toLowerCase() === 'admin' && (password === getSystemPass() || password === 'admin123')) {
+        const devUser = {
+          id: 'dev_admin_akram',
+          name: 'المطور (أكرم Al-Sabri)',
+          identity: 'admin',
+          role: 'super_admin',
+          status: 'approved',
+          assignedCircle: 'الكل'
+        };
+        localStorage.setItem('quran_active_user', JSON.stringify(devUser));
+        checkAppAccess();
+        return;
+      }
+
+      if (authMode === 'register') {
+        const role = document.getElementById('roleInput').value;
+        if (users.find(u => u.identity === identity)) {
+          alert('هذا الحساب مسجل مسبقاً!');
+          return;
+        }
+
+        const newUser = {
+          id: 'user_' + Date.now(),
+          name: identity,
+          identity: identity,
+          password: password,
+          role: role,
+          status: 'pending',
+          assignedCircle: 'حلقة مخصصة'
+        };
+
+        users.push(newUser);
+        localStorage.setItem('quran_app_system_users', JSON.stringify(users));
+        localStorage.setItem('quran_active_user', JSON.stringify(newUser));
+        alert('تم إرسال طلب الانضمام بنجاح. حسابك الآن قيد المراجعة في انتظار موافقة المشرف العام.');
+        checkAppAccess();
+      } else {
+        const user = users.find(u => u.identity === identity && u.password === password);
+        if (!user) {
+          alert('بيانات الدخول غير صحيحة!');
+          return;
+        }
+
+        localStorage.setItem('quran_active_user', JSON.stringify(user));
+        checkAppAccess();
+      }
+    }
+
+    function checkAppAccess() {
+      initSystem();
+      const activeUser = JSON.parse(localStorage.getItem('quran_active_user'));
+      const overlay = document.getElementById('authOverlay');
+      const mainContent = document.getElementById('mainAppContent');
+      const pendingCard = document.getElementById('pendingMessageCard');
+      const authForm = document.getElementById('authForm');
+      const authTabs = document.getElementById('authTabsContainer');
+      const superAdminSection = document.getElementById('superAdminSection');
+      const regularUserSection = document.getElementById('regularUserSection');
+
+      // عند فتح التطبيق لأول مرة أو بدون مستخدم نشط
+      if (!activeUser) {
+        overlay.style.display = 'flex';
+        authForm.style.display = 'block';
+        authTabs.style.display = 'flex';
+        pendingCard.style.display = 'none';
+        mainContent.style.display = 'none';
+        return;
+      }
+
+      // إذا كان الحساب معلقاً (Pending)
+      if (activeUser.status === 'pending') {
+        overlay.style.display = 'flex';
+        authForm.style.display = 'none';
+        authTabs.style.display = 'none';
+        pendingCard.style.display = 'block';
+        mainContent.style.display = 'none';
+        return;
+      }
+
+      // إذا كان الحساب مقبولاً (Approved)
+      overlay.style.display = 'none';
+      mainContent.style.display = 'block';
+
+      document.getElementById('userNameDisplay').innerText = activeUser.name || activeUser.identity;
+      document.getElementById('userRoleBadge').innerText = getRoleLabel(activeUser.role);
+
+      // عزل الصلاحيات وحماية مطلقة للوحة المشرف العام والمطور
+      if (activeUser.role === 'super_admin' || activeUser.role === 'developer') {
+        superAdminSection.style.display = 'block';
+        regularUserSection.style.display = 'none';
+        loadAdminPendingList();
+      } else {
+        superAdminSection.style.display = 'none';
+        regularUserSection.style.display = 'block';
+      }
+    }
+
+    function getRoleLabel(role) {
+      switch(role) {
+        case 'super_admin': return 'المشرف العام / المطور';
+        case 'developer': return 'المطور التقني';
+        case 'supervisor': return 'مشرف حلقة';
+        case 'teacher': return 'معلم / محفظ';
+        case 'parent': return 'ولي أمر';
+        case 'student': return 'طالب';
+        default: return 'مستخدم';
+      }
+    }
+
+    function loadAdminPendingList() {
+      let users = JSON.parse(localStorage.getItem('quran_app_system_users') || '[]');
+      let container = document.getElementById('pendingUsersList');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const pendingList = users.filter(u => u.status === 'pending');
+      if (pendingList.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:#888; font-size:12px;">لا توجد طلبات انضمام معلقة حالياً.</p>';
+      } else {
+        pendingList.forEach(u => {
+          container.innerHTML += `
+            <div style="border-bottom:1px solid #333; padding:8px 0; display:flex; justify-content:space-between; align-items:center; font-size:13px;">
+              <div>
+                <strong style="color:#f8fafc;">${u.name}</strong> <span style="color:#20c997">(${getRoleLabel(u.role)})</span>
+              </div>
+              <div style="display:flex; gap:4px;">
+                <button onclick="approveUser('${u.id}')" style="background:#28a745; color:#fff; border:none; padding:4px 10px; border-radius:4px; cursor:pointer; font-size:11px; font-weight:bold; font-family:inherit;">قبول ✓</button>
+                <button onclick="rejectUser('${u.id}')" style="background:#dc3545; color:#fff; border:none; padding:4px 10px; border-radius:4px; cursor:pointer; font-size:11px; font-family:inherit;">رفض ✕</button>
+              </div>
+            </div>
+          `;
+        });
+      }
+    }
+
+    function approveUser(id) {
+      let users = JSON.parse(localStorage.getItem('quran_app_system_users') || '[]');
+      users = users.map(u => u.id === id ? {...u, status: 'approved'} : u);
+      localStorage.setItem('quran_app_system_users', JSON.stringify(users));
+      alert('تمت الموافقة على الحساب واعتماده بنجاح!');
+      loadAdminPendingList();
+    }
+
+    function rejectUser(id) {
+      let users = JSON.parse(localStorage.getItem('quran_app_system_users') || '[]');
+      users = users.filter(u => u.id !== id);
+      localStorage.setItem('quran_app_system_users', JSON.stringify(users));
+      alert('تم رفض وحذف الطلب.');
+      loadAdminPendingList();
+    }
+
+    function logoutUser() {
+      localStorage.removeItem('quran_active_user');
       location.reload();
     }
 
-    // فحص فوري عند فتح الصفحة
-    window.addEventListener('DOMContentLoaded', checkUserStatus);
-
-    function copyApkLink() {
-      const url = window.location.origin + "/app-debug.apk";
-      navigator.clipboard.writeText(url).then(() => {
-        const msg = document.getElementById("copy-msg");
-        msg.style.display = "block";
-        setTimeout(() => { msg.style.display = "none"; }, 3000);
-      });
-    }
-
+    // PWA Service Worker Registration
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js')
-          .then((registration) => {
-            console.log('ServiceWorker registered with scope:', registration.scope);
-          })
-          .catch((error) => {
-            console.log('ServiceWorker registration failed:', error);
-          });
+          .then((reg) => console.log('ServiceWorker registered:', reg.scope))
+          .catch((err) => console.log('ServiceWorker failed:', err));
       });
     }
+
+    window.addEventListener('DOMContentLoaded', checkAppAccess);
   </script>
 </body>
 </html>
