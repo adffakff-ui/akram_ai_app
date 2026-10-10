@@ -519,20 +519,35 @@ fun AuthProtectionScreen(
                             adminPinCode = it
                             pinError = false
                         },
-                        label = { Text("رمز التحقق السريع (اختياري / انقر تأكيد)") },
-                        placeholder = { Text("رمز المشرف أو المطور") },
+                        label = { Text("كلمة مرور المشرف العام (مطلوبة: admin123)") },
+                        placeholder = { Text("أدخل admin123") },
                         singleLine = true,
+                        isError = pinError,
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.fillMaxWidth()
                     )
+                    if (pinError) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "كلمة المرور غير صحيحة! كلمة مرور المشرف العام هي: admin123",
+                            color = MaterialTheme.colorScheme.error,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             },
             confirmButton = {
                 Button(
                     onClick = {
-                        viewModel.authenticateAsAdmin(adminRoleTarget)
-                        showAdminLoginPrompt = false
-                        adminPinCode = ""
+                        if (adminPinCode.trim() == "admin123") {
+                            viewModel.authenticateAsAdmin(adminRoleTarget)
+                            showAdminLoginPrompt = false
+                            adminPinCode = ""
+                            pinError = false
+                        } else {
+                            pinError = true
+                        }
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = if (adminRoleTarget == UserRole.SUPERVISOR) EmeraldPrimary else Color(0xFF1E293B)
