@@ -22,6 +22,6 @@ dependencyResolutionManagement {
   }
 }
 
-rootProject.name = "منارة القرآن"
+rootProject.name = "منارة القرآن الكريم الشاملة"
 
 include(":app")

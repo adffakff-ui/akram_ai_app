@@ -49,7 +49,9 @@ data class Halaqah(
     val category: HalaqahCategory = HalaqahCategory.GENERAL,
     val teacherPhone: String = "",
     val meetingTime: String = "العصر - المغرب",
-    val description: String = ""
+    val description: String = "",
+    val sectionGender: Gender = Gender.MALE,
+    val supervisorId: String = "super_admin"
 ) {
     val teacherName: String get() = responsibleSheikh.ifBlank { "الشيخ المشرف" }
 }

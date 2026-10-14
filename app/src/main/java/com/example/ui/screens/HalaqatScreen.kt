@@ -409,7 +409,7 @@ fun HalaqatScreen(
                                     modifier = Modifier.fillMaxWidth().testTag("student_search_input")
                                 )
 
-                                // Halaqat Chips (Restricted for Teacher, Global for Supervisor/Developer)
+                                // Halaqat Chips (Restricted per role: Teacher = assigned halaqah; Supervisor = assigned boys circles only; Developer = all)
                                 LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                                     if (currentRole == UserRole.TEACHER) {
                                         // Teacher sees only their own assigned halaqah
@@ -423,20 +423,60 @@ fun HalaqatScreen(
                                                 }
                                             )
                                         }
-                                    } else {
-                                        // Supervisor / Developer see all halaqat
+                                    } else if (currentRole == UserRole.SUPERVISOR) {
+                                        // Supervisor sees only their assigned circles (strictly isolated from girls section & other supervisors)
                                         item {
                                             FilterChip(
                                                 selected = selectedHalaqahId == null,
                                                 onClick = { viewModel.setSelectedHalaqah(null) },
-                                                label = { Text("جميع الحلقات (${students.size})") }
+                                                label = { Text("حلقاتك المشرف عليها (${students.size}) 🔒") }
                                             )
                                         }
-                                        items(halaqat) { h ->
+                                        items(visibleHalaqat) { h ->
                                             FilterChip(
                                                 selected = selectedHalaqahId == h.id,
                                                 onClick = { viewModel.setSelectedHalaqah(h.id) },
                                                 label = { Text(h.name) }
+                                            )
+                                        }
+                                    } else {
+                                        // Developer / General Admin sees all halaqat with section badges
+                                        item {
+                                            FilterChip(
+                                                selected = selectedHalaqahId == null,
+                                                onClick = { viewModel.setSelectedHalaqah(null) },
+                                                label = { Text("جميع الحلقات (${students.size}) 👑") }
+                                            )
+                                        }
+                                        items(halaqat) { h ->
+                                            val sectionLabel = if (h.sectionGender == Gender.FEMALE) "🌸 بنات" else "🕌 بنين"
+                                            FilterChip(
+                                                selected = selectedHalaqahId == h.id,
+                                                onClick = { viewModel.setSelectedHalaqah(h.id) },
+                                                label = { Text("${h.name} ($sectionLabel)") }
+                                            )
+                                        }
+                                    }
+                                }
+
+                                // Role Notification for Students
+                                if (currentRole == UserRole.STUDENT) {
+                                    Surface(
+                                        color = EmeraldPrimary.copy(alpha = 0.08f),
+                                        shape = RoundedCornerShape(8.dp),
+                                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+                                    ) {
+                                        Row(
+                                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Icon(Icons.Default.Visibility, contentDescription = null, tint = EmeraldPrimary, modifier = Modifier.size(16.dp))
+                                            Spacer(modifier = Modifier.width(6.dp))
+                                            Text(
+                                                "مستوى عرض الطالب: متابعة شخصية للورد والحفظ دون صلاحيات تعديل أو إدارة 🔒",
+                                                fontSize = 11.sp,
+                                                color = EmeraldDark,
+                                                fontWeight = FontWeight.Bold
                                             )
                                         }
                                     }
@@ -449,16 +489,18 @@ fun HalaqatScreen(
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
                                     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                                        Button(
-                                            onClick = { showAddStudentDialog = true },
-                                            colors = ButtonDefaults.buttonColors(containerColor = EmeraldPrimary),
-                                            shape = RoundedCornerShape(10.dp),
-                                            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
-                                            modifier = Modifier.testTag("add_student_button")
-                                        ) {
-                                            Icon(Icons.Default.PersonAdd, contentDescription = null, modifier = Modifier.size(16.dp))
-                                            Spacer(modifier = Modifier.width(4.dp))
-                                            Text("إضافة طالب", fontSize = 12.sp)
+                                        if (currentRole != UserRole.STUDENT) {
+                                            Button(
+                                                onClick = { showAddStudentDialog = true },
+                                                colors = ButtonDefaults.buttonColors(containerColor = EmeraldPrimary),
+                                                shape = RoundedCornerShape(10.dp),
+                                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
+                                                modifier = Modifier.testTag("add_student_button")
+                                            ) {
+                                                Icon(Icons.Default.PersonAdd, contentDescription = null, modifier = Modifier.size(16.dp))
+                                                Spacer(modifier = Modifier.width(4.dp))
+                                                Text("إضافة طالب", fontSize = 12.sp)
+                                            }
                                         }
 
                                         OutlinedButton(
@@ -509,6 +551,7 @@ fun HalaqatScreen(
                                 StudentCard(
                                     student = student,
                                     halaqahName = hName,
+                                    isReadOnly = (currentRole == UserRole.STUDENT),
                                     onRecordClick = { activeStudentForRecord = student },
                                     onSendPushClick = { activeStudentForPush = student },
                                     onChallengeClick = { activeStudentForChallenge = student },

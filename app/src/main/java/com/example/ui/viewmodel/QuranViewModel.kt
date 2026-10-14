@@ -118,21 +118,35 @@ class QuranViewModel(application: Application) : AndroidViewModel(application) {
     val pendingSyncCount: StateFlow<Int> = repository.syncManager.pendingSyncCount
     val isOnline: StateFlow<Boolean> = repository.syncManager.isOnline
 
-    // Halaqat visible to current role (Teachers see only their assigned halaqah; Supervisor & Developer see all)
+    // Halaqat visible to current role:
+    // Teachers: see only their assigned halaqah.
+    // Supervisors: see only their assigned circles (strictly isolated from other supervisors and excluding girls section).
+    // Developer (General Admin): sees all halaqat including both boys and girls sections and all supervisors.
     val halaqatForCurrentRole: StateFlow<List<Halaqah>> = combine(
         allHalaqat,
         _currentRole,
         _currentTeacherHalaqahId
     ) { halaqat, role, teacherHalaqahId ->
-        if (role == UserRole.TEACHER) {
-            val effectiveId = teacherHalaqahId ?: halaqat.firstOrNull()?.id
-            if (effectiveId != null) halaqat.filter { it.id == effectiveId } else halaqat
-        } else {
-            halaqat
+        when (role) {
+            UserRole.TEACHER -> {
+                val effectiveId = teacherHalaqahId ?: halaqat.firstOrNull()?.id
+                if (effectiveId != null) halaqat.filter { it.id == effectiveId } else halaqat
+            }
+            UserRole.SUPERVISOR -> {
+                // Strictly restricted to supervisor's assigned boys circles; hides girls section and other supervisors' circles
+                halaqat.filter { it.sectionGender == Gender.MALE && it.supervisorId == "supervisor_boys" }
+            }
+            UserRole.DEVELOPER -> {
+                // General Admin / Developer has comprehensive view of all sections
+                halaqat
+            }
+            UserRole.STUDENT, UserRole.PARENT -> {
+                halaqat
+            }
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    // Filtered Students (Enforces strict privacy: Teacher only sees their own students)
+    // Filtered Students (Enforces strict privacy and role isolation)
     val filteredStudents: StateFlow<List<Student>> = combine(
         allStudents,
         _currentRole,
@@ -149,15 +163,27 @@ class QuranViewModel(application: Application) : AndroidViewModel(application) {
         val gender = args[4] as Gender?
         val query = args[5] as String
 
+        val allowedHalaqahIds = halaqatForCurrentRole.value.map { it.id }.toSet()
+
         students.filter { s ->
-            val halaqahMatch = if (role == UserRole.TEACHER) {
-                val effectiveHalaqahId = teacherHalaqahId ?: allHalaqat.value.firstOrNull()?.id
-                effectiveHalaqahId == null || s.halaqahId == effectiveHalaqahId
-            } else {
-                selectedHalaqah == null || s.halaqahId == selectedHalaqah
+            val roleHalaqahMatch = when (role) {
+                UserRole.TEACHER -> {
+                    val effectiveHalaqahId = teacherHalaqahId ?: allowedHalaqahIds.firstOrNull()
+                    effectiveHalaqahId == null || s.halaqahId == effectiveHalaqahId
+                }
+                UserRole.SUPERVISOR -> {
+                    // Supervisor only sees students in his permitted halaqat (no girls section)
+                    allowedHalaqahIds.contains(s.halaqahId) && (selectedHalaqah == null || s.halaqahId == selectedHalaqah)
+                }
+                UserRole.STUDENT -> {
+                    selectedHalaqah == null || s.halaqahId == selectedHalaqah
+                }
+                else -> {
+                    selectedHalaqah == null || s.halaqahId == selectedHalaqah
+                }
             }
 
-            halaqahMatch &&
+            roleHalaqahMatch &&
             (gender == null || s.gender == gender) &&
             (query.isBlank() || s.name.contains(query, ignoreCase = true) ||
                     s.notes.contains(query, ignoreCase = true) ||

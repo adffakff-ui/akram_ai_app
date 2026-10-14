@@ -24,7 +24,7 @@ import com.example.data.model.*
         UserPermission::class,
         SubscriberRegistration::class
     ],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 abstract class QuranDatabase : RoomDatabase() {

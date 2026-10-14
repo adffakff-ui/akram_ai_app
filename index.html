@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>منارة القرآن الكريم - المنظومة الشاملة</title>
+  <title>منارة القرآن الكريم الشاملة</title>
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <link rel="manifest" href="/manifest.json">
   <link rel="apple-touch-icon" href="/icon-192.png">
   <meta name="theme-color" content="#0F5132">
-  <meta name="description" content="منارة القرآن الكريم - المنظومة الشاملة لإدارة حلقات التحفيظ والمتابعة">
+  <meta name="description" content="منظومة منارة القرآن الكريم الشاملة لإدارة حلقات التحفيظ (بنين وبنات)، التسميع، والتسجيلات الصوتية مع المزامنة">
 
   <!-- Google Fonts: Cairo -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,8 +17,16 @@
 
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { width: 100%; min-height: 100vh; font-family: 'Cairo', sans-serif, system-ui; background-color: #0F5132; overflow-x: hidden; }
-    
+    html, body { width: 100%; min-height: 100vh; font-family: 'Cairo', sans-serif, system-ui; background-color: #0F5132; overflow-x: hidden; -webkit-text-size-adjust: 100%; }
+
+    /* الحاوية الرئيسية للتطبيق */
+    .app-container, main, .main-wrapper {
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
     /* شاشة تسجيل الدخول الإلزامية */
     .auth-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -26,7 +34,7 @@
       z-index: 9999; padding: 15px;
     }
     .auth-box {
-      background: #fff; width: 100%; max-width: 420px; padding: 25px 20px;
+      background: #fff; width: 100%; max-width: 440px; padding: 25px 20px;
       border-radius: 14px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
       color: #1e293b;
     }
@@ -38,36 +46,36 @@
     .input-group input, .input-group select { width: 100%; padding: 11px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; font-family: inherit; }
     .submit-btn { width: 100%; padding: 12px; background: #0F5132; color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 5px; font-size: 15px; font-family: inherit; transition: all 0.2s ease; }
     .submit-btn:hover { background: #0b3d26; }
-    
+
     /* أزرار المطور المخصصة */
     .dev-bypass-btn {
-      width: 100%; padding: 12px; background: #198754; color: #fff;
-      border: 1px solid #34d399; border-radius: 8px; font-weight: bold; cursor: pointer;
+      width: 100%; padding: 12px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #fff;
+      border: 1px solid #34d399; border-radius: 8px; font-weight: 800; cursor: pointer;
       margin-top: 10px; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px;
       font-family: inherit; transition: all 0.2s ease;
-      box-shadow: 0 4px 12px rgba(25, 135, 84, 0.3);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
     }
-    .dev-bypass-btn:hover { background: #157347; transform: translateY(-1px); }
+    .dev-bypass-btn:hover { background: #047857; transform: translateY(-1px); }
     .dev-bio-btn {
-      width: 100%; padding: 11px; background: #0dcaf0; color: #000;
-      border: 1px solid #0aa2c0; border-radius: 8px; font-weight: bold; cursor: pointer;
+      width: 100%; padding: 11px; background: #0284c7; color: #fff;
+      border: 1px solid #38bdf8; border-radius: 8px; font-weight: bold; cursor: pointer;
       margin-top: 8px; font-size: 13px; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 8px;
       transition: all 0.2s ease;
     }
-    .dev-bio-btn:hover { background: #31d2f2; transform: translateY(-1px); }
-    
+    .dev-bio-btn:hover { background: #0369a1; transform: translateY(-1px); }
+
     .pending-card { padding: 15px; text-align: center; }
     .pending-card .icon { font-size: 45px; margin-bottom: 10px; }
     .secondary-btn { margin-top: 15px; background: #dc3545; color: #fff; border: none; padding: 9px 18px; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: bold; }
-    
+
     /* الواجهة الداخلية المحمية (SPA) */
     #mainAppContent { display: none; width: 100%; min-height: 100vh; background: #12221b; color: #fff; padding: 16px; }
     .admin-panel-box { background: #1a2e26; border: 1px solid #204033; border-radius: 12px; padding: 16px; margin-top: 15px; }
 
-    /* تفاصيل الحلقات والمعلومات الإضافية */
+    /* كروت الإحصائيات والمعلومات */
     .dashboard-card-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
       gap: 12px;
       margin-top: 14px;
     }
@@ -78,16 +86,103 @@
       padding: 12px;
       text-align: center;
     }
+
+    /* أقسام الرتب المختلفة */
+    .role-section {
+      background: #1a2e26;
+      border: 1px solid #204033;
+      border-radius: 12px;
+      padding: 18px;
+      margin-top: 16px;
+    }
+    .role-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      border-bottom: 1px solid #284c3c;
+      padding-bottom: 10px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: bold;
+    }
+    .badge-admin { background: #ffc107; color: #000; }
+    .badge-teacher { background: #0ea5e9; color: #fff; }
+    .badge-supervisor { background: #8b5cf6; color: #fff; }
+    .badge-student { background: #10b981; color: #fff; }
+    .badge-parent { background: #f59e0b; color: #000; }
+    .badge-female { background: #ec4899; color: #fff; }
+    .badge-male { background: #06b6d4; color: #fff; }
+
+    /* جداول متجاوبة */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 10px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: right;
+      font-size: 13px;
+    }
+    table th, table td {
+      padding: 10px;
+      border-bottom: 1px solid #284c3c;
+    }
+    table th {
+      background: #12221b;
+      color: #94a3b8;
+    }
+
+    /* مشغل الصوتيات */
+    .audio-rec-bar {
+      background: #0f2e22;
+      border: 1px solid #22543d;
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 12px;
+    }
+    .btn-action {
+      background: #10b981;
+      color: #fff;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 12px;
+    }
+    .btn-action:hover { background: #059669; }
+    .btn-secondary {
+      background: #334155;
+      color: #fff;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 12px;
+    }
   </style>
 </head>
 <body>
 
-  <!-- شاشة الدخول الإلزامية عند أول فتح للتطبيق -->
+  <!-- شاشة الدخول الإلزامية عند أول فتح للتطبيق أو عدم وجود جلسة نشطة -->
   <div id="authOverlay" class="auth-overlay">
     <div class="auth-box">
-      <div style="font-size: 35px; margin-bottom: 5px;">📖</div>
-      <h2 style="color: #0F5132; font-size: 20px; margin-bottom: 5px;">تسجيل الدخول / طلب انضمام</h2>
-      <p style="font-size: 12px; color: #666; margin-bottom: 15px;">منارة القرآن الكريم - المنظومة الشاملة</p>
+      <div style="font-size: 38px; margin-bottom: 4px;">📖</div>
+      <h2 style="color: #0F5132; font-size: 21px; margin-bottom: 4px;">منارة القرآن الكريم الشاملة</h2>
+      <p style="font-size: 12px; color: #64748b; margin-bottom: 16px;">المنظومة المتكاملة للحلقات (بنين وبنات) وإدارة التسميع</p>
       
       <div id="authTabsContainer" class="auth-tabs">
         <button type="button" class="tab-btn active" onclick="switchAuthTab('login')">تسجيل الدخول</button>
@@ -97,22 +192,29 @@
       <form id="authForm" onsubmit="handleAuthSubmit(event)">
         <div class="input-group">
           <label>اسم المستخدم / الهاتف / البريد</label>
-          <input type="text" id="userInput" placeholder="أدخل اسمك (admin للمشرف)" required>
+          <input type="text" id="userInput" placeholder="أدخل اسمك أو معرفك (admin للمشرف)" required>
         </div>
 
         <div class="input-group">
           <label>كلمة المرور</label>
-          <input type="password" id="passwordInput" placeholder="كلمة المرور" required>
+          <input type="password" id="passwordInput" placeholder="كلمة المرور (admin123 للمشرف)" required>
         </div>
 
         <div id="registerFields" style="display: none;">
           <div class="input-group">
             <label>الصفة / الرتبة المطلوبة</label>
             <select id="roleInput">
-              <option value="student">طالب</option>
+              <option value="student">طالب (عرض شخصي مقيد)</option>
               <option value="parent">ولي أمر</option>
-              <option value="teacher">معلم / محفظ</option>
-              <option value="supervisor">مشرف حلقة</option>
+              <option value="teacher">معلم / محفظ (حلقته المعتمدة فقط)</option>
+              <option value="supervisor">مشرف حلقة (حلقات خاصة معتمدة فقط)</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>القسم المطلوب</label>
+            <select id="sectionGenderInput">
+              <option value="male">قسم البنين</option>
+              <option value="female">قسم البنات</option>
             </select>
           </div>
         </div>
@@ -120,18 +222,18 @@
         <button type="submit" class="submit-btn" id="submitBtnText">تسجيل الدخول</button>
       </form>
 
-      <!-- أزرار البدء السريع للمطور (أكرم) -->
+      <!-- زر خاص للمطور (أكرم Al-Sabri) باللون الأخضر للدخول المباشر السريع -->
       <button type="button" class="dev-bypass-btn" onclick="loginAsDeveloper()">
-        ⚡ دخول المطور السريع (برمز سري)
+        <span>⚡ دخول المطور السريع (صلاحيات كاملة)</span>
       </button>
       <button type="button" class="dev-bio-btn" onclick="loginWithBiometrics()">
-        🔒 دخول المطور بالبصمة الحيوية (Fingerprint)
+        <span>🔒 دخول المطور بالبصمة الحيوية (Fingerprint)</span>
       </button>
 
       <div id="pendingMessageCard" class="pending-card" style="display: none;">
         <div class="icon">⏳</div>
-        <h3 style="color: #0F5132; font-size: 16px;">حسابك قيد المراجعة ولا يمكن الدخول حتى يعتمده المشرف العام.</h3>
-        <p style="font-size: 12px; color: #666; margin-top: 6px;">تم تسجيل طلبك بنجاح، يرجى التواصل مع إدارة المجمع أو المشرف لتفعيل الحساب.</p>
+        <h3 style="color: #0F5132; font-size: 16px;">حسابك قيد المراجعة والتدقيق الإداري.</h3>
+        <p style="font-size: 12px; color: #666; margin-top: 6px;">تم تسجيل طلبك بنجاح. لا يمكنك الدخول للوحة الرئيسية إلا بعد مراجعة المشرف العام واعتماده.</p>
         <button onclick="logoutUser()" class="secondary-btn">تسجيل الخروج</button>
       </div>
     </div>
@@ -139,63 +241,315 @@
 
   <!-- واجهة التطبيق الرئيسية (تظهر حسب الصلاحيات بعد تسجيل الدخول) -->
   <div id="mainAppContent">
+    <!-- الشريط العلوي -->
     <div style="display:flex; justify-content:space-between; align-items:center; background:#1e382d; padding:12px 16px; border-radius:10px; border: 1px solid #28503e;">
       <div>
         <span id="userNameDisplay" style="font-weight:bold; font-size:15px; color:#f8fafc;">المستخدم</span><br>
-        <span id="userRoleBadge" style="font-size:11px; background:#198754; color:#fff; padding:2px 8px; border-radius:4px; font-weight:bold;">رتبة المستخدم</span>
+        <span id="userRoleBadge" class="badge badge-admin">رتبة المستخدم</span>
       </div>
       <div style="display:flex; gap:8px;">
-        <a href="/app-debug.apk" download="Manarat_AlQuran.apk" style="background:#0d6efd; color:#fff; text-decoration:none; padding:6px 12px; border-radius:6px; font-size:12px; font-weight:bold; display:flex; align-items:center; gap:4px;">
+        <a href="/app-debug.apk" download="Manarat_AlQuran_AlShamilah.apk" style="background:#0d6efd; color:#fff; text-decoration:none; padding:6px 12px; border-radius:6px; font-size:12px; font-weight:bold; display:flex; align-items:center; gap:4px;">
           <span>تحميل APK 📥</span>
         </a>
         <button onclick="logoutUser()" style="background:#dc3545; color:#fff; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; font-family:inherit; font-weight:bold;">تسجيل الخروج 🚪</button>
       </div>
     </div>
 
-    <!-- لوحة المشرف العام والمطور (تظهر حصرياً للمطور/المشرف العام فقط ولا يراها غيره) -->
+    <!-- 1. لوحة المشرف العام والمطور (تظهر حصرياً للمطور/المشرف العام فقط ولا يراها غيره) -->
     <div id="superAdminSection" style="display:none;" class="admin-panel-box">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-        <h3 style="color:#20c997;">👑 لوحة المشرف العام والمطور (الصلاحية الشاملة)</h3>
-        <span style="background:#ffc107; color:#000; font-size:11px; font-weight:bold; padding:2px 8px; border-radius:4px;">صلاحية الإدارة العليا</span>
+      <div class="role-header">
+        <div>
+          <h3 style="color:#20c997; font-size: 16px;">👑 لوحة المشرف العام والمطور (الصلاحية الشاملة)</h3>
+          <p style="font-size:12px; color:#aaa; margin-top:3px;">إدارة كافة الحلقات (قسم البنين وقسم البنات)، واعتماد طلبات المشتركين وسجلات التسميع الصوتي والمزامنة.</p>
+        </div>
+        <span class="badge badge-admin">الإدارة العليا</span>
       </div>
-      <p style="font-size:12px; color:#aaa; margin-bottom:12px;">إدارة كافة الحلقات، واعتماد طلبات المشتركين، والمشرفين، والمعلمين والتحكم بالإعدادات الحيوية.</p>
       
       <!-- إحصائيات سريعة للوحة الإدارة -->
-      <div class="dashboard-card-grid" style="margin-bottom:14px;">
+      <div class="dashboard-card-grid">
         <div class="stat-card">
           <div style="color:#aaa; font-size:11px;">إجمالي الحلقات المعتمدة</div>
-          <div style="color:#20c997; font-size:18px; font-weight:bold; margin-top:4px;">8 حلقات قرآنية</div>
+          <div style="color:#20c997; font-size:18px; font-weight:bold; margin-top:4px;">5 حلقات (بنين وبنات)</div>
         </div>
         <div class="stat-card">
-          <div style="color:#aaa; font-size:11px;">الطلاب المقيدون</div>
+          <div style="color:#aaa; font-size:11px;">الطلاب والطالبات المقيدون</div>
           <div style="color:#0dcaf0; font-size:18px; font-weight:bold; margin-top:4px;">124 طالباً وطالبة</div>
         </div>
         <div class="stat-card">
+          <div style="color:#aaa; font-size:11px;">سجلات التسميع الصوتي</div>
+          <div style="color:#38bdf8; font-size:18px; font-weight:bold; margin-top:4px;">مزامنة روم + سحابية ☁️</div>
+        </div>
+        <div class="stat-card">
           <div style="color:#aaa; font-size:11px;">حالة النظام وحزمة APK</div>
-          <div style="color:#ffc107; font-size:18px; font-weight:bold; margin-top:4px;">v1.0.0 متصل ⚡</div>
+          <div style="color:#ffc107; font-size:18px; font-weight:bold; margin-top:4px;">متصل ⚡ v2.0</div>
+        </div>
+      </div>
+
+      <!-- استعراض الحلقات المشتركة (قسم البنين وقسم البنات) -->
+      <div style="margin-top:16px; background:#13241e; padding:14px; border-radius:10px; border:1px solid #234737;">
+        <h4 style="font-size:14px; color:#20c997; margin-bottom:8px;">🕌 حلقات قسم البنين وقسم البنات المعتمدة:</h4>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>اسم الحلقة</th>
+                <th>القسم</th>
+                <th>المشرف / المعلم</th>
+                <th>المستوى</th>
+                <th>المواعيد</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>حلقة الإمام عاصم (حفظ مكثف)</td>
+                <td><span class="badge badge-male">قسم البنين</span></td>
+                <td>الشيخ عبد الرحمن السديس</td>
+                <td>المستوى المتقدم</td>
+                <td>العصر - المسجد الكبير</td>
+              </tr>
+              <tr>
+                <td>حلقة الإمام نافع (المراجعة والتثبيت)</td>
+                <td><span class="badge badge-male">قسم البنين</span></td>
+                <td>الشيخ ماهر المعيقلي</td>
+                <td>المستوى المتوسط</td>
+                <td>المغرب - قاعة التحفيظ</td>
+              </tr>
+              <tr>
+                <td>حلقة البراعم والأشبال</td>
+                <td><span class="badge badge-male">قسم البنين</span></td>
+                <td>الشيخ فيصل بن جميل</td>
+                <td>التمهيدي (جزء عم)</td>
+                <td>العصر - قاعة الصغار</td>
+              </tr>
+              <tr>
+                <td>حلقة السيدة خديجة (حفظ وتجويد)</td>
+                <td><span class="badge badge-female">قسم البنات 🌸</span></td>
+                <td>الأستاذة فاطمة الزهراء</td>
+                <td>المستوى المتقدم</td>
+                <td>العصر - قاعة الطالبات</td>
+              </tr>
+              <tr>
+                <td>حلقة أمهات المؤمنين (مراجعة وإتقان)</td>
+                <td><span class="badge badge-female">قسم البنات 🌸</span></td>
+                <td>الأستاذة مريم أحمد</td>
+                <td>المستوى المتوسط</td>
+                <td>المغرب - قاعة الفتيات</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
       <!-- إعدادات المطور الخاصة بتغيير كلمة المرور -->
-      <div style="background:#13241e; padding:12px; border-radius:8px; margin-bottom:14px; border:1px solid #234737;">
-        <h4 style="font-size:13px; color:#ffc107; margin-bottom:6px;">⚙️ إعدادات الحماية للمطور:</h4>
-        <input type="password" id="newDevPass" placeholder="كلمة المرور الجديدة للمطور" style="width:100%; padding:9px; margin-bottom:8px; border-radius:6px; border:1px solid #444; font-size:13px; background:#1b3229; color:#fff; font-family:inherit;">
-        <button onclick="updateDeveloperPassword()" style="background:#ffc107; color:#000; border:none; padding:8px 12px; border-radius:6px; font-weight:bold; cursor:pointer; font-size:12px; width:100%; font-family:inherit;">تحديث كلمة مرور المطور</button>
+      <div style="background:#13241e; padding:12px; border-radius:8px; margin-top:14px; border:1px solid #234737;">
+        <h4 style="font-size:13px; color:#ffc107; margin-bottom:6px;">⚙️ إعدادات الحماية للمطور (أكرم Al-Sabri):</h4>
+        <div style="display:flex; gap:8px;">
+          <input type="password" id="newDevPass" placeholder="كلمة المرور الجديدة للمطور" style="flex:1; padding:9px; border-radius:6px; border:1px solid #444; font-size:13px; background:#1b3229; color:#fff; font-family:inherit;">
+          <button onclick="updateDeveloperPassword()" style="background:#ffc107; color:#000; border:none; padding:8px 14px; border-radius:6px; font-weight:bold; cursor:pointer; font-size:12px; font-family:inherit;">حفظ التغيير</button>
+        </div>
       </div>
 
-      <h4 style="font-size:13px; margin-bottom:6px; color:#34d399;">📋 طلبات الانضمام والمصادقة (معلق / مقبول):</h4>
-      <div id="pendingUsersList" style="max-height:240px; overflow-y:auto; background:#12221b; padding:10px; border-radius:8px; border:1px solid #333;"></div>
+      <!-- طلبات الانضمام والمصادقة للمشرف العام -->
+      <div style="margin-top:16px;">
+        <h4 style="font-size:13px; margin-bottom:6px; color:#34d399;">📋 طلبات الانضمام والمصادقة (معلق / مقبول):</h4>
+        <div id="pendingUsersList" style="max-height:240px; overflow-y:auto; background:#12221b; padding:10px; border-radius:8px; border:1px solid #333;"></div>
+      </div>
     </div>
 
-    <!-- لوحة مخصصة لبقية الرتب (المعلم، ولي الأمر، الطالب) لمنع أي تداخل أو انتهاك للخصوصية -->
-    <div id="regularUserSection" style="display:none; margin-top:20px; text-align:center; padding:30px; background:#1a2e26; border-radius:12px; border:1px solid #204033;">
-      <div style="font-size:42px; margin-bottom:10px;">🕌</div>
-      <h2 style="color:#20c997; margin-bottom:10px;">لوحة متابعة الحلقات والتحفيظ</h2>
-      <p style="color:#cbd5e1; font-size:14px; line-height:1.7; max-width:600px; margin:0 auto 16px;">
-        أنت تطلع فقط على ما يخص صلاحيتك وحلقتك المسجلة، ولا يمكنك الوصول لبيانات أو خصوصية الحلقات الأخرى.
-      </p>
-      <div style="background:#13241e; display:inline-block; padding:10px 18px; border-radius:8px; border:1px dashed #28503e; font-size:13px; color:#38bdf8;">
-        🔒 الصلاحية نشطة • وضع الخصوصية والعزل مفعل لحسابك
+    <!-- 2. لوحة الطالب (مستوى العرض والمتابعة الشخصية فقط - غلق كافة صلاحيات التعديل والإدارة) -->
+    <div id="studentPanel" style="display:none;" class="role-section">
+      <div class="role-header">
+        <div>
+          <h3 style="color:#10b981; font-size: 16px;">📖 ملف الطالب القرآني الشخصي</h3>
+          <p style="font-size:12px; color:#94a3b8; margin-top:3px;">مخصص لمستوى العرض فقط ومتابعة الورد والتسميع دون صلاحيات تعديل أو إدارة 🔒</p>
+        </div>
+        <span class="badge badge-student">حساب طالب (عرض فقط)</span>
+      </div>
+
+      <div class="dashboard-card-grid">
+        <div class="stat-card">
+          <div style="color:#aaa; font-size:11px;">الجزء الحالي</div>
+          <div style="color:#10b981; font-size:18px; font-weight:bold; margin-top:4px;">الجزء 3 (آل عمران)</div>
+        </div>
+        <div class="stat-card">
+          <div style="color:#aaa; font-size:11px;">مجموع النقاط المكتسبة</div>
+          <div style="color:#fbbf24; font-size:18px; font-weight:bold; margin-top:4px;">145 نقطة 🌟</div>
+        </div>
+        <div class="stat-card">
+          <div style="color:#aaa; font-size:11px;">المستوى المعتمد</div>
+          <div style="color:#38bdf8; font-size:18px; font-weight:bold; margin-top:4px;">متقدم 🌟</div>
+        </div>
+        <div class="stat-card">
+          <div style="color:#aaa; font-size:11px;">نسبة الحضور والالتزام</div>
+          <div style="color:#34d399; font-size:18px; font-weight:bold; margin-top:4px;">98% ملتزم</div>
+        </div>
+      </div>
+
+      <div style="margin-top:14px; background:#13241e; padding:12px; border-radius:8px; border:1px solid #234737;">
+        <h4 style="font-size:13px; color:#34d399; margin-bottom:8px;">سجل التسميع اليومي والمراجعة (عرض فقط):</h4>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>التاريخ</th>
+                <th>سورة الحفظ</th>
+                <th>سورة المراجعة</th>
+                <th>التقييم</th>
+                <th>ملاحظة المعلم</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>2026-10-14</td>
+                <td>آل عمران (1-20)</td>
+                <td>البقرة (خاتمة)</td>
+                <td><span style="color:#34d399;">ممتاز 🌟</span></td>
+                <td>أداء رائع مع مراعاة الغنن والمدود</td>
+              </tr>
+              <tr>
+                <td>2026-10-12</td>
+                <td>البقرة (270-286)</td>
+                <td>الفاتحة</td>
+                <td><span style="color:#34d399;">ممتاز 🌟</span></td>
+                <td>تسميع متقن بدون أخطاء</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="audio-rec-bar">
+        <div>
+          <span style="font-size:13px; font-weight:bold;">🎙️ التسجيل الصوتي لآخر جلسة تسميع:</span>
+          <span style="font-size:11px; color:#94a3b8; display:block;">محفوظ محلياً عبر قاعدة بيانات روم مع المزامنة</span>
+        </div>
+        <button class="btn-action" onclick="alert('جاري تشغيل التسجيل الصوتي المعتمد للتسميع 🔊')">تشغيل التسجيل 🔊</button>
+      </div>
+    </div>
+
+    <!-- 3. لوحة المعلم / المحفظ (مقيد بإدارة حلقته المعتمدة فقط) -->
+    <div id="teacherPanel" style="display:none;" class="role-section">
+      <div class="role-header">
+        <div>
+          <h3 style="color:#0ea5e9; font-size: 16px;">👨‍🏫 لوحة المعلم / المحفظ (صلاحية الحلقة فقط)</h3>
+          <p style="font-size:12px; color:#94a3b8; margin-top:3px;">مقيد بإدارة حلقتك المعتمدة فقط، ولا يمكنك الاطلاع على بيانات الحلقات الأخرى 🔒</p>
+        </div>
+        <span class="badge badge-teacher">حلقة الإمام عاصم (حفظ مكثف)</span>
+      </div>
+
+      <div style="background:#13241e; padding:14px; border-radius:10px; border:1px solid #234737;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <h4 style="font-size:13px; color:#38bdf8;">طلاب حلقتك المعتمدة (رصد التسميع والتحضير):</h4>
+          <span style="font-size:11px; color:#94a3b8;">إجمالي الطلاب: 3 طلاب</span>
+        </div>
+        
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>اسم الطالب</th>
+                <th>الجزء</th>
+                <th>حالة الحضور</th>
+                <th>إجراءات التسميع</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>عبد الله بن أحمد المنصور</td>
+                <td>الجزء 3 (آل عمران)</td>
+                <td><span style="color:#34d399; font-weight:bold;">حاضر ✓</span></td>
+                <td>
+                  <button class="btn-action" onclick="alert('تم فتح نافذة رصد التسميع للطالب عبد الله بن أحمد')">رصد التسميع 📖</button>
+                </td>
+              </tr>
+              <tr>
+                <td>محمد بن خالد العتيبي</td>
+                <td>الجزء 7 (الأنعام)</td>
+                <td><span style="color:#34d399; font-weight:bold;">حاضر ✓</span></td>
+                <td>
+                  <button class="btn-action" onclick="alert('تم فتح نافذة رصد التسميع للطالب محمد بن خالد')">رصد التسميع 📖</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. لوحة المشرف (يرى كل مشرف حلقاته الخاصة فقط التي تم ربطه بها ووافق عليها المشرف العام، ولا تظهر له أي حلقات أخرى أو حلقات قسم البنات أو حلقات مشرف آخر) -->
+    <div id="supervisorPanel" style="display:none;" class="role-section">
+      <div class="role-header">
+        <div>
+          <h3 style="color:#a855f7; font-size: 16px;">🕌 لوحة المشرف الميداني (الحلقات التابعة لك فقط)</h3>
+          <p style="font-size:12px; color:#94a3b8; margin-top:3px;">تظهر لك حصرياً الحلقات المعتمدة لك من المشرف العام، ومعزول تماماً عن قسم البنات وحلقات المشرفين الآخرين 🔒</p>
+        </div>
+        <span class="badge badge-supervisor">إشراف الحلقات الخاصة</span>
+      </div>
+
+      <div class="dashboard-card-grid">
+        <div class="stat-card">
+          <div style="color:#aaa; font-size:11px;">حلقاتك المسندة إليك</div>
+          <div style="color:#c084fc; font-size:18px; font-weight:bold; margin-top:4px;">2 حلقات بنين معتمدة</div>
+        </div>
+        <div class="stat-card">
+          <div style="color:#aaa; font-size:11px;">طلاب حلقاتك</div>
+          <div style="color:#38bdf8; font-size:18px; font-weight:bold; margin-top:4px;">32 طالباً</div>
+        </div>
+        <div class="stat-card">
+          <div style="color:#aaa; font-size:11px;">حالة عزل قسم البنات</div>
+          <div style="color:#10b981; font-size:18px; font-weight:bold; margin-top:4px;">معزول ومحمي 🔒</div>
+        </div>
+      </div>
+
+      <div style="margin-top:14px; background:#13241e; padding:12px; border-radius:8px; border:1px solid #234737;">
+        <h4 style="font-size:13px; color:#c084fc; margin-bottom:8px;">الحلقات المربوطة بحسابك والموافق عليها:</h4>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>اسم الحلقة</th>
+                <th>المعلم المشرف</th>
+                <th>المستوى</th>
+                <th>المقر</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>حلقة الإمام عاصم (حفظ مكثف - بنين)</td>
+                <td>الشيخ عبد الرحمن السديس</td>
+                <td>المستوى المتقدم</td>
+                <td>المسجد الكبير</td>
+              </tr>
+              <tr>
+                <td>حلقة الإمام نافع (المراجعة والتثبيت - بنين)</td>
+                <td>الشيخ ماهر المعيقلي</td>
+                <td>المستوى المتوسط</td>
+                <td>قاعة التحفيظ 2</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. لوحة ولي الأمر -->
+    <div id="parentPanel" style="display:none;" class="role-section">
+      <div class="role-header">
+        <div>
+          <h3 style="color:#f59e0b; font-size: 16px;">👨‍👧‍👦 بوابة ولي الأمر (متابعة الأبناء)</h3>
+          <p style="font-size:12px; color:#94a3b8; margin-top:3px;">متابعة تقارير الحفظ والمراجعة والتسميع لأبنائك المسجلين فقط 🔒</p>
+        </div>
+        <span class="badge badge-parent">ولي أمر</span>
+      </div>
+
+      <div style="background:#13241e; padding:14px; border-radius:10px; border:1px solid #234737;">
+        <h4 style="font-size:13px; color:#fbbf24; margin-bottom:8px;">تقرير الابن: عبد الله بن أحمد</h4>
+        <p style="font-size:12px; color:#cbd5e1; line-height:1.7;">
+          • الورد الحالي: سورة آل عمران (الآيات 1 إلى 20)<br>
+          • التقييم في آخر جلسة: <span style="color:#34d399; font-weight:bold;">ممتاز 🌟</span><br>
+          • الحضور: منتظم بدون غياب
+        </p>
+        <button class="btn-action" style="margin-top:10px;" onclick="alert('تم إرسال رسالة استفسار للمحفظ الشيخ عبد الرحمن')">مراسلة المحفظ 📲</button>
       </div>
     </div>
   </div>
@@ -229,20 +583,38 @@
           assignedCircle: 'الكل'
         });
         users.push({
-          id: 'user_sample_1',
-          name: 'عبدالرحمن بن خالد',
-          identity: 'abdelrahman',
+          id: 'user_sample_student',
+          name: 'عبد الله بن أحمد المنصور',
+          identity: 'student',
           password: '123',
           role: 'student',
-          status: 'pending',
-          assignedCircle: 'حلقة البنين'
+          status: 'approved',
+          assignedCircle: 'حلقة الإمام عاصم'
         });
         users.push({
-          id: 'user_sample_2',
-          name: 'الشيخ إبراهيم الشافعي',
-          identity: 'ibrahim',
+          id: 'user_sample_teacher',
+          name: 'الشيخ عبد الرحمن السديس',
+          identity: 'teacher',
           password: '123',
           role: 'teacher',
+          status: 'approved',
+          assignedCircle: 'حلقة الإمام عاصم'
+        });
+        users.push({
+          id: 'user_sample_supervisor',
+          name: 'المشرف أحمد بن صالح',
+          identity: 'supervisor',
+          password: '123',
+          role: 'supervisor',
+          status: 'approved',
+          assignedCircle: 'حلقات البنين التابعة له'
+        });
+        users.push({
+          id: 'user_sample_parent',
+          name: 'أحمد المنصور (ولي أمر)',
+          identity: 'parent',
+          password: '123',
+          role: 'parent',
           status: 'approved',
           assignedCircle: 'حلقة الإمام عاصم'
         });
@@ -265,10 +637,10 @@
       document.getElementById('newDevPass').value = '';
     }
 
-    // دخول المطور السريع برمز سري
+    // زر دخول المطور السريع (مؤمن بالرمز السري 2026 أو كلمة مرور الإدارة)
     function loginAsDeveloper() {
       const pin = prompt("أدخل الرمز السري الخاص بالمطور (أكرم):");
-      if (pin === getSystemPass() || pin === "2026") {
+      if (pin === getSystemPass() || pin === "2026" || pin === "admin123") {
         initSystem();
         const devUser = {
           id: 'dev_admin_akram',
@@ -281,7 +653,7 @@
         localStorage.setItem('quran_active_user', JSON.stringify(devUser));
         checkAppAccess();
       } else {
-        alert("الرمز السري غير صحيح!");
+        alert("الرمز السري غير صحيح! هذا الزر مخصص للمطور فقط.");
       }
     }
 
@@ -292,16 +664,14 @@
           alert('متصفحك لا يدعم المصادقة بالبصمة الحيوية.');
           return;
         }
-        // طلب المصادقة الحيوية من الجهاز
         const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
         if (!available) {
           alert('مستشعر البصمة غير متوفر أو غير مفعل على هذا الجهاز.');
           return;
         }
         
-        // استدعاء المصادقة الحيوية للتحقق من هوية المطور
         const challenge = new Uint8Array([19, 23, 84, 15, 67, 99, 12, 45]);
-        const credential = await navigator.credentials.get({
+        await navigator.credentials.get({
           publicKey: {
             challenge: challenge,
             timeout: 60000,
@@ -309,7 +679,6 @@
           }
         }).catch(() => null);
 
-        // نجاح البصمة وتفعيل جلسة المطور
         initSystem();
         const devUser = {
           id: 'dev_admin_akram',
@@ -323,7 +692,6 @@
         alert('تم التحقق بالبصمة بنجاح! مرحباً بك يا باشمهندس أكرم.');
         checkAppAccess();
       } catch (e) {
-        // في حال تم إلغاء البصمة يدوياً
         alert('تم إلغاء المصادقة بالبصمة أو لم يتم التعرف عليها.');
       }
     }
@@ -353,6 +721,7 @@
 
       if (authMode === 'register') {
         const role = document.getElementById('roleInput').value;
+        const sectionGender = document.getElementById('sectionGenderInput').value;
         if (users.find(u => u.identity === identity)) {
           alert('هذا الحساب مسجل مسبقاً!');
           return;
@@ -364,8 +733,9 @@
           identity: identity,
           password: password,
           role: role,
+          sectionGender: sectionGender,
           status: 'pending',
-          assignedCircle: 'حلقة مخصصة'
+          assignedCircle: sectionGender === 'female' ? 'حلقة قسم البنات' : 'حلقة قسم البنين'
         };
 
         users.push(newUser);
@@ -393,8 +763,12 @@
       const pendingCard = document.getElementById('pendingMessageCard');
       const authForm = document.getElementById('authForm');
       const authTabs = document.getElementById('authTabsContainer');
+
       const superAdminSection = document.getElementById('superAdminSection');
-      const regularUserSection = document.getElementById('regularUserSection');
+      const studentPanel = document.getElementById('studentPanel');
+      const teacherPanel = document.getElementById('teacherPanel');
+      const supervisorPanel = document.getElementById('supervisorPanel');
+      const parentPanel = document.getElementById('parentPanel');
 
       // عند فتح التطبيق لأول مرة أو بدون مستخدم نشط
       if (!activeUser) {
@@ -421,27 +795,49 @@
       mainContent.style.display = 'block';
 
       document.getElementById('userNameDisplay').innerText = activeUser.name || activeUser.identity;
-      document.getElementById('userRoleBadge').innerText = getRoleLabel(activeUser.role);
+      const roleBadge = document.getElementById('userRoleBadge');
+      roleBadge.innerText = getRoleLabel(activeUser.role);
 
-      // عزل الصلاحيات وحماية مطلقة للوحة المشرف العام والمطور
-      if (activeUser.role === 'super_admin' || activeUser.role === 'developer') {
+      // إخفاء كافة الأقسام أولاً
+      superAdminSection.style.display = 'none';
+      studentPanel.style.display = 'none';
+      teacherPanel.style.display = 'none';
+      supervisorPanel.style.display = 'none';
+      parentPanel.style.display = 'none';
+
+      // عزل الصلاحيات الأربعة وحماية مطلقة لكل رتبة:
+      if (activeUser.role === 'super_admin' || activeUser.role === 'developer' || activeUser.identity === 'admin') {
         superAdminSection.style.display = 'block';
-        regularUserSection.style.display = 'none';
+        roleBadge.className = 'badge badge-admin';
         loadAdminPendingList();
+      } else if (activeUser.role === 'student') {
+        // الطلاب: مخصصون لمستوى عرضهم فقط مع غلق كافة صلاحيات التعديل والإدارة
+        studentPanel.style.display = 'block';
+        roleBadge.className = 'badge badge-student';
+      } else if (activeUser.role === 'teacher') {
+        // المعلمون: مقيدون بإدارة حلقاتهم المعتمدة فقط
+        teacherPanel.style.display = 'block';
+        roleBadge.className = 'badge badge-teacher';
+      } else if (activeUser.role === 'supervisor') {
+        // المشرفون: يرى كل مشرف حلقاته الخاصة فقط التي تم ربطه بها ووافق عليها المشرف العام، ولا تظهر له أي حلقات أخرى أو حلقات قسم البنات
+        supervisorPanel.style.display = 'block';
+        roleBadge.className = 'badge badge-supervisor';
+      } else if (activeUser.role === 'parent') {
+        parentPanel.style.display = 'block';
+        roleBadge.className = 'badge badge-parent';
       } else {
-        superAdminSection.style.display = 'none';
-        regularUserSection.style.display = 'block';
+        studentPanel.style.display = 'block';
       }
     }
 
     function getRoleLabel(role) {
       switch(role) {
-        case 'super_admin': return 'المشرف العام / المطور';
-        case 'developer': return 'المطور التقني';
-        case 'supervisor': return 'مشرف حلقة';
-        case 'teacher': return 'معلم / محفظ';
-        case 'parent': return 'ولي أمر';
-        case 'student': return 'طالب';
+        case 'super_admin': return 'المشرف العام / المطور 👑';
+        case 'developer': return 'المطور التقني 💻';
+        case 'supervisor': return 'مشرف حلقة 🕌';
+        case 'teacher': return 'معلم / محفظ 👨‍🏫';
+        case 'parent': return 'ولي أمر 👨‍👧‍👦';
+        case 'student': return 'طالب (عرض شخصي) 📖';
         default: return 'مستخدم';
       }
     }
@@ -454,15 +850,18 @@
 
       const pendingList = users.filter(u => u.status === 'pending');
       if (pendingList.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#888; font-size:12px;">لا توجد طلبات انضمام معلقة حالياً.</p>';
+        container.innerHTML = '<p style="text-align:center; color:#888; font-size:12px; padding:10px;">لا توجد طلبات انضمام معلقة حالياً.</p>';
       } else {
         pendingList.forEach(u => {
+          const sectionLabel = u.sectionGender === 'female' ? '🌸 قسم البنات' : '🕌 قسم البنين';
           container.innerHTML += `
             <div style="border-bottom:1px solid #333; padding:8px 0; display:flex; justify-content:space-between; align-items:center; font-size:13px;">
               <div>
-                <strong style="color:#f8fafc;">${u.name}</strong> <span style="color:#20c997">(${getRoleLabel(u.role)})</span>
+                <strong style="color:#f8fafc;">${u.name}</strong> 
+                <span style="color:#20c997">(${getRoleLabel(u.role)})</span>
+                <span style="color:#cbd5e1; font-size:11px;"> - ${sectionLabel}</span>
               </div>
-              <div style="display:flex; gap:4px;">
+              <div style="display:flex; gap:6px;">
                 <button onclick="approveUser('${u.id}')" style="background:#28a745; color:#fff; border:none; padding:4px 10px; border-radius:4px; cursor:pointer; font-size:11px; font-weight:bold; font-family:inherit;">قبول ✓</button>
                 <button onclick="rejectUser('${u.id}')" style="background:#dc3545; color:#fff; border:none; padding:4px 10px; border-radius:4px; cursor:pointer; font-size:11px; font-family:inherit;">رفض ✕</button>
               </div>

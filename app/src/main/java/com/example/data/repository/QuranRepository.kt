@@ -37,44 +37,78 @@ class QuranRepository(
         val existingHalaqat = allHalaqat.first()
         if (existingHalaqat.isNotEmpty()) return
 
-        // Populate Halaqat
+        // Populate Halaqat (قسم البنين وقسم البنات)
         val h1Id = dao.insertHalaqah(
             Halaqah(
-                name = "حلقة الإمام عاصم (حفظ مكثف)",
+                name = "حلقة الإمام عاصم (حفظ مكثف - بنين)",
                 studentsLevel = "المستوى المتقدم",
                 responsibleSheikh = "الشيخ عبد الرحمن السديس",
                 category = HalaqahCategory.HIFZ,
                 teacherPhone = "0551234567",
                 meetingTime = "بعد صلاة العصر - المسجد الكبير",
-                description = "حلقة مخصصة للحفظ المتقن مع أحكام التجويد ومخارج الحروف"
+                description = "حلقة مخصصة للحفظ المتقن مع أحكام التجويد ومخارج الحروف",
+                sectionGender = Gender.MALE,
+                supervisorId = "supervisor_boys"
             )
         )
 
         val h2Id = dao.insertHalaqah(
             Halaqah(
-                name = "حلقة الإمام نافع (المراجعة والتثبيت)",
+                name = "حلقة الإمام نافع (المراجعة والتثبيت - بنين)",
                 studentsLevel = "المستوى المتوسط",
                 responsibleSheikh = "الشيخ ماهر المعيقلي",
                 category = HalaqahCategory.MURAJAAH,
                 teacherPhone = "0559876543",
                 meetingTime = "بعد صلاة المغرب - قاعة التحفيظ 2",
-                description = "تثبيت المحفوظ ومراجعة خمسة أجزاء أسبوعياً"
+                description = "تثبيت المحفوظ ومراجعة خمسة أجزاء أسبوعياً",
+                sectionGender = Gender.MALE,
+                supervisorId = "supervisor_boys"
             )
         )
 
         val h3Id = dao.insertHalaqah(
             Halaqah(
-                name = "حلقة البراعم والأشبال (جزء عم)",
+                name = "حلقة البراعم والأشبال (جزء عم - بنين)",
                 studentsLevel = "المستوى التمهيدي",
                 responsibleSheikh = "الشيخ فيصل بن جميل",
                 category = HalaqahCategory.KIDS,
                 teacherPhone = "0554433221",
                 meetingTime = "العصر - قاعة الصغار",
-                description = "تلقين قصار السور وغرس الآداب والأخلاق القرآنية"
+                description = "تلقين قصار السور وغرس الآداب والأخلاق القرآنية",
+                sectionGender = Gender.MALE,
+                supervisorId = "supervisor_boys"
             )
         )
 
-        // Populate Students
+        val h4Id = dao.insertHalaqah(
+            Halaqah(
+                name = "حلقة السيدة خديجة (حفظ وتجويد - بنات)",
+                studentsLevel = "المستوى المتقدم",
+                responsibleSheikh = "الأستاذة فاطمة الزهراء",
+                category = HalaqahCategory.HIFZ,
+                teacherPhone = "0557788990",
+                meetingTime = "العصر - مبنى قسم الطالبات",
+                description = "حلقة متميزة لطالبات قسم البنات لإتقان الترتيل وحفظ القرآن",
+                sectionGender = Gender.FEMALE,
+                supervisorId = "supervisor_girls"
+            )
+        )
+
+        val h5Id = dao.insertHalaqah(
+            Halaqah(
+                name = "حلقة أمهات المؤمنين (مراجعة وتثبيت - بنات)",
+                studentsLevel = "المستوى المتوسط",
+                responsibleSheikh = "الأستاذة مريم أحمد",
+                category = HalaqahCategory.MURAJAAH,
+                teacherPhone = "0556677889",
+                meetingTime = "المغرب - قاعة الفتيات 2",
+                description = "جلسات مدارسة ومراجعة الأجزاء لطالبات قسم البنات",
+                sectionGender = Gender.FEMALE,
+                supervisorId = "supervisor_girls"
+            )
+        )
+
+        // Populate Students (بنين وبنات)
         val s1 = dao.insertStudent(
             Student(
                 name = "عبد الله بن أحمد المنصور",
@@ -133,17 +167,17 @@ class QuranRepository(
             Student(
                 name = "سارة بنت فهد القحطاني",
                 gender = Gender.FEMALE,
-                halaqahId = h2Id,
+                halaqahId = h4Id,
                 parentName = "فهد القحطاني",
                 parentPhone = "0504445566",
                 parentCode = "1004",
                 currentJuz = 20,
                 currentSurah = "طه",
-                level = "المستوى المتوسط",
-                totalPoints = 95,
-                notes = "صوت جميل وترتيل متقن وسرعة بديهة",
-                memorizationGoalPagesPerDay = 1.0f,
-                revisionGoalPagesPerDay = 5.0f
+                level = "المستوى المتقدم",
+                totalPoints = 110,
+                notes = "صوت جميل وترتيل متقن وسرعة بديهة في التسميع",
+                memorizationGoalPagesPerDay = 1.5f,
+                revisionGoalPagesPerDay = 6.0f
             )
         )
 
@@ -162,6 +196,42 @@ class QuranRepository(
                 notes = "براعم موهوب في حفظ قصار السور",
                 memorizationGoalPagesPerDay = 0.5f,
                 revisionGoalPagesPerDay = 2.0f
+            )
+        )
+
+        val s6 = dao.insertStudent(
+            Student(
+                name = "عائشة بنت عبد العزيز المنصور",
+                gender = Gender.FEMALE,
+                halaqahId = h4Id,
+                parentName = "عبد العزيز المنصور",
+                parentPhone = "0506667788",
+                parentCode = "1006",
+                currentJuz = 5,
+                currentSurah = "النساء",
+                level = "المستوى المتقدم",
+                totalPoints = 135,
+                notes = "متميزة في الحفظ والتسميع الصوتي اليومي",
+                memorizationGoalPagesPerDay = 2.0f,
+                revisionGoalPagesPerDay = 8.0f
+            )
+        )
+
+        val s7 = dao.insertStudent(
+            Student(
+                name = "خديجة بنت عمر السالم",
+                gender = Gender.FEMALE,
+                halaqahId = h5Id,
+                parentName = "عمر السالم",
+                parentPhone = "0507778899",
+                parentCode = "1007",
+                currentJuz = 12,
+                currentSurah = "يوسف",
+                level = "المستوى المتوسط",
+                totalPoints = 90,
+                notes = "مواظبة على مراجعة وردها والتسميع بانتظام",
+                memorizationGoalPagesPerDay = 1.0f,
+                revisionGoalPagesPerDay = 5.0f
             )
         )
 

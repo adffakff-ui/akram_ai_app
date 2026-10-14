@@ -40,6 +40,7 @@ fun StudentCard(
     onTtsPlayClick: () -> Unit,
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit,
+    isReadOnly: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -135,7 +136,7 @@ fun StudentCard(
                     }
                 }
 
-                // More Menu
+                // More Menu (Only show edit/delete if not read-only)
                 Box {
                     IconButton(onClick = { showMoreMenu = true }) {
                         Icon(Icons.Default.MoreVert, contentDescription = "المزيد")
@@ -144,14 +145,16 @@ fun StudentCard(
                         expanded = showMoreMenu,
                         onDismissRequest = { showMoreMenu = false }
                     ) {
-                        DropdownMenuItem(
-                            text = { Text("تعديل بيانات الطالب") },
-                            leadingIcon = { Icon(Icons.Default.Edit, contentDescription = null) },
-                            onClick = {
-                                onEditClick()
-                                showMoreMenu = false
-                            }
-                        )
+                        if (!isReadOnly) {
+                            DropdownMenuItem(
+                                text = { Text("تعديل بيانات الطالب") },
+                                leadingIcon = { Icon(Icons.Default.Edit, contentDescription = null) },
+                                onClick = {
+                                    onEditClick()
+                                    showMoreMenu = false
+                                }
+                            )
+                        }
                         DropdownMenuItem(
                             text = { Text("سجل الحضور والغياب 📅") },
                             leadingIcon = { Icon(Icons.Default.EventAvailable, contentDescription = null) },
@@ -184,58 +187,84 @@ fun StudentCard(
                                 showMoreMenu = false
                             }
                         )
-                        DropdownMenuItem(
-                            text = { Text("مراسلة الولي عبر واتساب 📲") },
-                            leadingIcon = { Icon(Icons.Default.Chat, contentDescription = null) },
-                            onClick = {
-                                val message = "السلام عليكم ورحمة الله، مرحباً بولي أمر الطالب ${student.name}. نود مشاركتكم تقدم الطالب في حلقة القرآن الكريم."
-                                val url = "https://api.whatsapp.com/send?phone=${student.parentPhone}&text=${Uri.encode(message)}"
-                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                                context.startActivity(intent)
-                                showMoreMenu = false
-                            }
-                        )
-                        HorizontalDivider()
-                        DropdownMenuItem(
-                            text = { Text("حذف الطالب من الحلقة", color = Color.Red) },
-                            leadingIcon = { Icon(Icons.Default.Delete, contentDescription = null, tint = Color.Red) },
-                            onClick = {
-                                onDeleteClick()
-                                showMoreMenu = false
-                            }
-                        )
+                        if (!isReadOnly) {
+                            DropdownMenuItem(
+                                text = { Text("مراسلة الولي عبر واتساب 📲") },
+                                leadingIcon = { Icon(Icons.Default.Chat, contentDescription = null) },
+                                onClick = {
+                                    val message = "السلام عليكم ورحمة الله، مرحباً بولي أمر الطالب ${student.name}. نود مشاركتكم تقدم الطالب في حلقة القرآن الكريم."
+                                    val url = "https://api.whatsapp.com/send?phone=${student.parentPhone}&text=${Uri.encode(message)}"
+                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                                    context.startActivity(intent)
+                                    showMoreMenu = false
+                                }
+                            )
+                            HorizontalDivider()
+                            DropdownMenuItem(
+                                text = { Text("حذف الطالب من الحلقة", color = Color.Red) },
+                                leadingIcon = { Icon(Icons.Default.Delete, contentDescription = null, tint = Color.Red) },
+                                onClick = {
+                                    onDeleteClick()
+                                    showMoreMenu = false
+                                }
+                            )
+                        }
                     }
                 }
             }
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Primary Interactive Actions Row
+            // Primary Interactive Actions Row (Adapts between Teacher/Supervisor vs Student view-only)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Record Hifz Button (Primary action)
-                Button(
-                    onClick = onRecordClick,
-                    colors = ButtonDefaults.buttonColors(containerColor = EmeraldPrimary),
-                    shape = RoundedCornerShape(10.dp),
-                    modifier = Modifier.weight(1.3f).testTag("record_hifz_student_${student.id}")
-                ) {
-                    Icon(Icons.Default.MenuBook, contentDescription = null, modifier = Modifier.size(16.dp))
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text("رَصْدُ التَّسْمِيعِ 📖", fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                }
+                if (!isReadOnly) {
+                    // Record Hifz Button (Primary action for teachers/supervisors)
+                    Button(
+                        onClick = onRecordClick,
+                        colors = ButtonDefaults.buttonColors(containerColor = EmeraldPrimary),
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier.weight(1.3f).testTag("record_hifz_student_${student.id}")
+                    ) {
+                        Icon(Icons.Default.MenuBook, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("رَصْدُ التَّسْمِيعِ 📖", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    }
 
-                // Send Personalized Push Alert
-                OutlinedButton(
-                    onClick = onSendPushClick,
-                    shape = RoundedCornerShape(10.dp),
-                    modifier = Modifier.weight(1f).testTag("send_push_student_${student.id}")
-                ) {
-                    Icon(Icons.Default.NotificationsActive, contentDescription = null, tint = GoldPrimary, modifier = Modifier.size(16.dp))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("تنبيه فوري 🔔", fontSize = 11.sp)
+                    // Send Personalized Push Alert
+                    OutlinedButton(
+                        onClick = onSendPushClick,
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier.weight(1f).testTag("send_push_student_${student.id}")
+                    ) {
+                        Icon(Icons.Default.NotificationsActive, contentDescription = null, tint = GoldPrimary, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("تنبيه فوري 🔔", fontSize = 11.sp)
+                    }
+                } else {
+                    // Student View-Only: Progress Review & Challenge & PDF
+                    FilledTonalButton(
+                        onClick = onChallengeClick,
+                        colors = ButtonDefaults.filledTonalButtonColors(containerColor = GoldPrimary.copy(alpha = 0.2f)),
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier.weight(1.3f)
+                    ) {
+                        Icon(Icons.Default.EmojiEvents, contentDescription = null, tint = GoldPrimary, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("تحدي الحفظ اليومي ⏱️", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = EmeraldDark)
+                    }
+
+                    OutlinedButton(
+                        onClick = onAttendanceClick,
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Icon(Icons.Default.EventAvailable, contentDescription = null, tint = EmeraldPrimary, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("سجل حضوري 📅", fontSize = 11.sp)
+                    }
                 }
 
                 // Quick PDF Export

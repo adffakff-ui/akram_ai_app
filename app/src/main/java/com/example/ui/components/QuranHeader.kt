@@ -75,13 +75,13 @@ fun QuranHeader(
                     Spacer(modifier = Modifier.width(10.dp))
                     Column {
                         Text(
-                            text = if (currentLanguage == "ar") "مَنَارَةُ القُرْآنِ الكَرِيمِ" else "Manarat Al-Quran",
+                            text = if (currentLanguage == "ar") "مَنَارَةُ القُرْآنِ الكَرِيمِ الشَّامِلَة" else "Manarat Al-Quran Comprehensive",
                             color = Color.White,
                             fontSize = 17.sp,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = if (currentLanguage == "ar") "المنظومة الشاملة لإدارة الحلقات والتحفيظ" else "Quran Memorization System",
+                            text = if (currentLanguage == "ar") "المنظومة الشاملة لإدارة الحلقات والتحفيظ (بنين وبنات)" else "Comprehensive Quran System (Boys & Girls)",
                             color = Color.White.copy(alpha = 0.75f),
                             fontSize = 11.sp
                         )
